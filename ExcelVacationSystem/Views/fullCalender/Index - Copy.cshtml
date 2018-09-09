@@ -1,0 +1,345 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Vacation Request</h2>
+<div id="calender"></div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="eventTitle"></span></h4>
+            </div>
+            <div class="modal-body">
+                <button id="btnDelete" class="btn btn-default btn-sm pull-right">
+                    <span class="glyphicon glyphicon-remove"></span> Remove
+                </button>
+                <button id="btnEdit" class="btn btn-default btn-sm pull-right" style="margin-right:5px;">
+                    <span class="glyphicon glyphicon-pencil"></span> Edit
+                </button>
+                <p id="pDetails"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalSave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Vacation Request</h4>
+            </div>
+            <div class="modal-body">
+                <form class="col-md-12 form-horizontal">
+                    <input type="hidden" id="hdEventID" value="0" />
+                    
+                    <div class="form-group">
+                        <label>From</label>
+                        <div class="input-group date" id="dtp1">
+                            <input type="text" id="txtStart" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>For</label>
+                        <div class="dropdown" id="days">
+                            <select class='1-"+x+"' id="Ndays"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsCasualVacation" checked="checked" />  Casual Vacation</label> &nbsp; &nbsp;
+                            <label><input type="checkbox" id="chkIsRegularVacation" checked="checked" /> Regular Vacation</label> &nbsp; &nbsp;
+
+                        </div>
+                    </div>
+                    <div class="form-group" id="divEndDate" style="display:none">
+                        <label>To</label>
+                        <div class="input-group date" id="dtp2">
+                            <input type="text" id="txtEnd" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <textarea id="txtDescription" rows="3" class="form-control"></textarea>
+                    </div>
+                    @*<div class="form-group">
+                        <label>Theme Color</label>
+                        <select id="ddThemeColor" class="form-control">
+                            <option value="">Default</option>
+                            <option value="red">Red</option>
+                            <option value="blue">Blue</option>
+                            <option value="black">Black</option>
+                            <option value="green">Green</option>
+                        </select>
+                    </div>*@
+                    <button type="button" id="btnSave" class="btn btn-success">Request</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css" rel="stylesheet" />
+<link href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.print.css" rel="stylesheet" media="print" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var events = [];
+            var selectedEvent = null;
+           FetchEventAndRenderCalendar();
+            function FetchEventAndRenderCalendar() {
+                events = [];
+                debugger
+                $.ajax({
+
+                    type: "GET",
+                    url: "/fullCalender/GetEvents",
+                    
+                    success: function (data) {
+                        debugger
+                        
+                        $.each(data, function (i, v) {
+                            var s = data[i].fromDate.split("Date")[1].split(')')[0].split('(')[1];
+                            var from = new Date(parseInt(s));
+
+                            s = data[i].toDate.split("Date")[1].split(')')[0].split('(')[1];
+                            var to = new Date(parseInt(s));
+                            events.push({
+
+                                vac_ID: v.vac_ID,
+                                //title: v.Subject,
+                                Reason: v.Reason,
+                                fromDate: moment(from),
+                                toDate : to!= null ? moment(to) : null,
+                                ndays:v.num_days,
+                                //color: v.ThemeColor,
+                                CasualVacation: v.isCasual,
+                                RegularVacation: v.isRegular
+                            });
+                        })
+
+                        GenerateCalender(events);
+                    },
+                    error: function (error) {
+                        alert('failed');
+                    }
+                })
+            }
+
+            function GenerateCalender() {
+                $('#calender').fullCalendar('destroy');
+                $('#calender').fullCalendar({
+                    contentHeight: 400,
+                    defaultDate: new Date(),
+                    timeFormat: 'h(:mm)a',
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,basicWeek,basicDay,agenda'
+                    },
+                    eventLimit: true,
+                    eventColor: '#378006',
+                    //events: events,
+                    eventClick: function (calEvent, jsEvent, view) {
+                        selectedEvent = calEvent;
+                        $('#myModal #eventTitle').text(calEvent.title);
+                        var $Reason = $('<div/>');
+                        $Reason.append($('<p/>').html('<b>Start:</b>' + calEvent.fromDate.format("DD-MMM-YYYY HH:mm a")));
+                        if (calEvent.toDate != null) {
+                            $Reason.append($('<p/>').html('<b>End:</b>' + calEvent.toDate.format("DD-MMM-YYYY HH:mm a")));
+                        }
+                        $Reason.append($('<p/>').html('<b>Description:</b>' + calEvent.Reason));
+                        $('#myModal #pDetails').empty().html($Reason);
+
+                        $('#myModal').modal();
+                    },
+                    selectable: true,
+                    select: function (fromDate, toDate) {
+                        selectedEvent = {
+                            vac_ID: 0,
+                           // title: '',
+                            Reason: '',
+                            fromDate: fromDate,
+                            toDate: toDate,
+                            CasualVacation: false,
+                            RegularVacation:false,
+                           // color: ''
+                        };
+                        openAddEditForm();
+                        $('#calendar').fullCalendar('unselect');
+                    },
+                    editable: true,
+                    eventDrop: function (event) {
+                        var data = {
+                            vac_ID: event.vac_ID,
+                            //Subject: event.title,
+                            Start: event.fromDate.format('DD/MM/YYYY HH:mm A'),
+                            End: event.toDate != null ? event.toDate.format('DD/MM/YYYY HH:mm A') : null,
+                            Reason: event.Reason,
+                           // ThemeColor: event.color,
+                            CasualVacation: event.isCasual,
+                            RegularVacation: event.isRegular
+                        };
+                        SaveEvent(data);
+                    }
+                })
+            }
+
+            $('#btnEdit').click(function () {
+                //Open modal dialog for edit event
+                openAddEditForm();
+            })
+            $('#btnDelete').click(function () {
+                if (selectedEvent != null && confirm('Are you sure?')) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/fullCalender/DeleteEvent',
+                        data: {'vac_ID': selectedEvent.vac_ID},
+                        success: function (data) {
+                            if (data.status) {
+                                //Refresh the calender
+                                FetchEventAndRenderCalendar();
+                                $('#myModal').modal('hide');
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                }
+            })
+
+            $('#dtp1,#dtp2').datetimepicker({
+                format: 'DD/MM/YYYY HH:mm A'
+            });
+            var VacationType = -1;
+            $('#chkIsCasualVacation').change(function () {
+                if ($(this).is(':checked')) {
+                    // $('#divEndDate').hide();
+                    VacationType = 1;
+                }
+                else {
+                    //$('#divEndDate').show();
+                    VacationType = 0;
+                }
+            });
+            $('#chkIsRegularVacation').change(function () {
+                if ($(this).is(':checked')) {
+                    // $('#divEndDate').hide();
+                    VacationType = 2;
+                }
+                else {
+                    //$('#divEndDate').show();
+                    VacationType = 0;
+                }
+            });
+
+            function openAddEditForm() {
+                if (selectedEvent != null) {
+                    $('#hdEventID').val(selectedEvent.vac_ID);
+                    //$('#txtSubject').val(selectedEvent.title);
+                    $('#txtStart').val(selectedEvent.fromDate.format('DD/MM/YYYY HH:mm A'));
+                    $('#chkIsCasualVacation').prop("checked", selectedEvent.CasualVacation || false);
+                    $('#chkIsCasualVacation').change();
+                    $('#chkIsRegularVacation').prop("checked", selectedEvent.RegularVacation || false);
+                    $('#chkIsRegularVacation').change();
+                    $('#txtEnd').val(selectedEvent.toDate != null ? selectedEvent.toDate.format('DD/MM/YYYY HH:mm A') : '');
+                    $('#txtDescription').val(selectedEvent.Reason);
+                   // $('#ddThemeColor').val(selectedEvent.color);
+                }
+                $('#myModal').modal('hide');
+                $('#myModalSave').modal();
+            }
+
+            $('#btnSave').click(function () {
+                //Validation/
+                //if ($('#txtSubject').val().trim() == "") {
+                //    alert('Subject required');
+                //    return;
+                //}
+                if ($('#txtStart').val().trim() == "") {
+                    alert('Start date required');
+                    return;
+                }
+                //if ($('#chkIsFullDay').is(':checked') == false && $('#txtEnd').val().trim() == "") {
+                //    alert('End date required');
+                //    return;
+                    //}
+                if ($('#Ndays').val().trim() == "") {
+                    alert('Number of days required');
+                    return;
+                }
+                if ($('#txtEnd').val().trim() == "") {
+                    alert('End date required');
+                    return;
+                }
+                else {
+                    var fromDateDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                    var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                    if (fromDateDate > endDate) {
+                        alert('Invalid toDate date');
+                        return;
+                    }
+                }
+
+                var data = {
+                    VacationID: $('#hdEventID').val(),
+                   // Subject: $('#txtSubject').val().trim(),
+                    from : $('#txtStart').val().trim(),
+                    // End: $('#chkIsFullDay').is(':checked') ? null : $('#txtEnd').val().trim(),
+                    // IsRegularVacation: $('#chkIsRegularVacation').is(':checked'),
+                    numberOfDays : $("#Ndays").val(),
+                    vacationType : VacationType, 
+                    Reason: $('#txtDescription').val(),
+                   // ThemeColor: $('#ddThemeColor').val(),
+                     //IsCasualVacation: $('#chkIsCasualVacation').is(':checked')
+                }
+                SaveEvent(data);
+                // call function for submit data to the server
+            })
+
+            function SaveEvent(data) {
+                $.ajax({
+                    type: "POST",
+                    url: '/fullCalender/SaveEvent',
+                    data: data,
+                    success: function (data) {
+                        if (data.status) {
+                            //Refresh the calender
+                            FetchEventAndRenderCalendar();
+                            $('#myModalSave').modal('hide');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+                })
+            }
+        })
+        $(function () {
+            var x = 100;
+                @*//@Session["Days"].ToString();*@
+            var $select = $('.1-'+x);
+            for (i = 1; i <= 100; i++) {
+                $select.append($('<option></option>').val(i).html(i))
+            }
+        });
+    </script>
+}

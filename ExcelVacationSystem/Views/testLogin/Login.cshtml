@@ -1,0 +1,45 @@
+﻿@model ExcelVacationSystem.Models.Employee
+@{
+    ViewBag.Title = "Login";
+}
+
+@using (Html.BeginForm("Login", "testLogin", FormMethod.Post))
+{
+    <fieldset>
+        <legend> Login</legend>
+
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @if (@ViewBag.Message != null)
+        {
+            <div style="border: 1px solid red">
+                @ViewBag.Message
+            </div>
+        }
+        <table>
+            <tr>
+                <td>@Html.LabelFor(a => a.Email)</td>
+                <td>@Html.TextBoxFor(a => a.Email)</td>
+                <td>@Html.ValidationMessageFor(a => a.Email)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.LabelFor(a => a.password)
+                </td>
+                <td>
+                    @Html.PasswordFor(a => a.password)
+                </td>
+                <td>
+                    @Html.ValidationMessageFor(a => a.password)
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Login" />
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </fieldset>
+}  

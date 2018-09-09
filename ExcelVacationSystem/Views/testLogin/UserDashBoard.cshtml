@@ -1,0 +1,749 @@
+﻿@model ExcelVacationSystem.Models.Employee
+
+@{
+    ViewBag.Title = "UserDashBoard";
+}
+<link href="~/Content/sweetalert/sweet-alert.css" rel="stylesheet" />
+
+@*<link href="~/CSS/userDash.css" rel="stylesheet" />*@
+<script src="~/Scripts/moment.js"></script>
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/CSS/background.css" rel="stylesheet" />
+<link href="~/CSS/dateTimePicker.css" rel="stylesheet" />
+<link href="~/CSS/fullCalendar.css" rel="stylesheet" />
+<script src="~/Scripts/datePicker.js"></script>
+
+
+<legend> welcome @Session["name"].ToString() </legend>
+<div id="BtnGrp">
+    @*<a href="#" class="btn btn-info" onclick="AddNewEmployee(0)">Add new Employee</a>*@
+    <a href="#" class="btn btn-info" id="btn" onclick="request()">Request Vacation</a>
+</div>
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>*@
+<script src="~/Scripts/core.js"></script>
+@*<script src="http://tristanedwards.me/u/SweetAlert//lib/sweet-alert.js"></script>*@
+<script src="~/Scripts/sweet_alert.js"></script>
+@*<link rel="stylesheet" type="text/css" href="http://tristanedwards.me/u/SweetAlert//lib/sweet-alert.css">*@
+<link href="~/CSS/sweet_alert.css" rel="stylesheet" />
+<link href="~/Content/Bootstrap.min.css" rel="stylesheet" />
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Flip/1.0.18/jquery.flip.js"></script>*@
+<script src="~/Scripts/jquery_flip.js"></script>
+<script>
+
+
+</script>
+@*<button id="myButton" class="float-left submit-button">Request Vacation</button>*@
+<br />
+<br />
+
+
+@* Add jquery code for Get Notification & setup signalr *@
+
+
+<table class="table table-striped" id="tbl">
+    <thead id="hd">
+        <tr>
+            <th>Employee SSN</th>
+            <th>Employee Name</th>
+            <th>Email</th>
+            @*<th>Available Casual Days</th>*@
+            <th>Total Available Days</th>
+            <th>Manager Name</th>
+            <th>Department Name</th>
+            <th>Hiring Date</th>
+            <th id="edit"></th>
+            <th id="Del"></th>
+            <!-- <th>Edit</th>
+             <th>Delete</th>-->
+
+        </tr>
+    </thead>
+    <tbody id="SetEmployeeList">
+        <tr id="LoadingStatus" style="color:red"></tr>
+
+    </tbody>
+
+</table>
+
+<div class="modal fade" id="MyModal">
+    
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 id="ModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <img id="loader" src="~/imgs/35.gif" style="display:none;position:absolute;top:50%;left:50%" />
+                <form id="form">
+                    <fieldset id="SubmitForm">
+                        @* @Html.HiddenFor(m => m.emp_ssn, new { @id = "EID" })*@
+                        <div class="form-group">
+                            @Html.Label("Employee ssn")
+                            @Html.TextBoxFor(m => m.emp_ssn, new { @id = "ssn", @class = "form-control", @placeholder = "ssn*"  })
+                        </div>
+                        <div class="form-group">
+                            @Html.Label(" Name")
+                            @Html.TextBoxFor(m => m.name, new { @id = "EName", @class = "form-control", @placeholder = "Name*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.Label(" Email")
+                            @Html.TextBoxFor(m => m.Email, new { @id = "E-mail", @class = "form-control", @placeholder = "E-mail*" })
+                        </div>
+
+                        @*<div class="form-group">
+                            @Html.Label(" Number of Casual days")
+                            @Html.TextBoxFor(m => m.Casual_vacation, new { @id = "casualavail", @class = "form-control", @placeholder = "number of casual days*" })
+                        </div>*@
+                        @*<div class="form-group">
+                            @Html.Label(" Number of Regular days")
+                            @Html.TextBoxFor(m => m.Regular_vacation, new { @id = "Regularavail", @class = "form-control", @placeholder = "number of regular days*" })
+                        </div>*@
+                        <div class="form-group">
+                            @Html.Label(" Total Available Days")
+                            @Html.TextBoxFor(m => m.Total_Available_days, new { @id = "total", @class = "form-control", @placeholder = "Total Available Days*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.Label(" Hiring Date")
+                            @Html.TextBoxFor(m => m.Hiring_Date, new { @id = "hire", @class = "form-control", @placeholder = "hiringDate*" })
+                        </div>
+                        @*<div class="form-group">
+                            @Html.TextBoxFor(m => m.mgr_ssn, new { @id = "manager", @class = "form-control", @placeholder = "managerSSN*" })
+                        </div>*@
+                        <div class="form-group">
+                           
+                            @Html.DropDownListFor(m => m.mgr_ssn, (IEnumerable<SelectListItem>)ViewData["Managers"],"managerName*")
+                        </div>
+                        @*<div class="form-group">
+                            @Html.TextBoxFor(m => m.Dno, new { @id = "dName", @class = "form-control", @placeholder = "Department number*" })
+                        </div>*@
+                        <div class="form-group">
+                            @Html.DropDownListFor(m => m.Dno, (IEnumerable<SelectListItem>)ViewData["departments"], "DepartmentName*")
+                        </div>
+
+                        @*<div class="form-group">
+                            @Html.TextBoxFor(m => m.isManager, new { @id = "mgr", @class = "form-control", @placeholder = "1ForManager,0For not manager" })
+                        </div>*@
+
+                        <div class="form-group">
+                            @Html.DropDownListFor(m => m.isManager, new SelectList(ViewBag.Manager, "value", "name"),"IsManager?*")
+                        </div>
+
+                        <div class="form-group">
+                            <a href="#" class="btn btn-block btn-danger" id="SaveEmployeeRecord">Save</a>
+                        </div>
+
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete Employee Record</h4>
+            </div>
+            <div class="modal-body">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancle</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete(this)">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/CSS/loader.css" rel="stylesheet" />
+<style type="text/css">
+    /*Added css for design notification area, you can design by your self*/
+    /* COPY css content from youtube video description*/
+ 
+
+
+
+
+
+    .noti-content {
+        position: fixed;
+        right: 100px;
+        background: #e5e5e5;
+        border-radius: 4px;
+        top: 47px;
+        width: 250px;
+        display: none;
+        border: 1px solid #9E988B;
+    }
+
+    ul#notiContent {
+        max-height: 200px;
+        overflow: auto;
+        padding: 0px;
+        margin: 0px;
+        padding-left: 20px;
+    }
+
+        ul#notiContent li {
+            margin: 3px;
+            padding: 6px;
+            background: #fff;
+        }
+
+    .noti-top-arrow {
+        border-color: transparent;
+        border-bottom-color: #F5DEB3;
+        border-style: dashed dashed solid;
+        border-width: 0 8.5px 8.5px;
+        position: absolute;
+        right: 32px;
+        top: -8px;
+    }
+
+    span.noti {
+        color: #FF2323;
+        margin: 15px;
+        position: fixed;
+        right: 100px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    span.count {
+        position: relative;
+        top: -3px;
+    }
+</style>
+
+<script src="~/Scripts/jquery.signalR-2.2.2.js"></script>
+<!--Reference the autogenerated SignalR hub script. -->
+<script src="/signalr/hubs"></script>
+
+<script>
+    $("#hire").datetimepicker({
+        format: 'DD/MM/YYYY'
+    });
+    function request()
+    {
+        var ssn = @(Int32.Parse(Session["ssn"].ToString()));
+        $.ajax({
+            url: "/fullCalender/canRequest?ssn="+ssn,
+            contentType: 'application/json',
+            type: 'GET',
+
+            success: function (data) {
+                var check = JSON.parse(data);
+
+                if (check == 1)
+                {
+                    window.location.href = "/fullCalender/index";
+
+                }
+                else
+                {
+                    swal({
+                        title: 'Are you sure?',
+                        text: "You have not passed the appointed time, so requesting a vacation may Affects your salary..",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, Confirm it!'
+                    },
+                       function (result) {
+                           if (result == true) {
+                               SaveEvent(data);
+                               window.location.href = "/fullCalender/index";
+                               swal({
+                                   position: 'center',
+                                   type: 'success',
+                                   title: '"Request sent to your head manager',
+                                   showConfirmButton: false,
+                                   timer: 2000
+                               }
+                               )
+                           }
+                           else if (result==false) {
+                               swal(
+                                 'Cancelled',
+                                 'error'
+                               )
+
+                           }
+                       })
+                }
+            }
+        })
+    }
+    $("#mgr_ssn").css({'width':"285px",'background':"mintcream",'height':"34px"});
+    $("#Dno").css({'width':"285px",'background':"mintcream",'height':"34px"});
+    $("#isManager").css({'width':"285px",'background':"mintcream",'height':"34px"});
+    $(document).ready(function() {
+        var ssn = @(Int32.Parse(Session["ssn"].ToString()));
+        $.ajax({
+            url: '/checkNewNotis/check?ssn='+ssn,
+            contentType: 'application/json',
+            type: 'GET',
+
+            success: function (data) {
+                var check = JSON.parse(data);
+
+                notificationCounter = check;
+                document.getElementById("span").innerHTML = notificationCounter;
+
+
+            }
+
+        })
+        var logOut= document.createElement("a");
+        logOut.setAttribute('href',"#");
+        logOut.innerHTML = "LOG OUT";
+        logOut.classList.add("nav");
+        logOut.classList.add("navbar-nav");
+        logOut.classList.add("navbar-right");
+        logOut.style.paddingLeft = "656px";
+        logOut.style.paddingTop = "16px";
+        logOut.addEventListener("click", function(){
+            window.location.href = "/testLogin/Index";
+        });
+        document.getElementById("nav").appendChild(logOut);
+    });
+
+    var  notificationCounter = 0;
+    var notifications = $.connection.studentHub;
+
+    $.connection.studentHub.qs = "userId=" + @Session["ssn"].ToString();
+
+    // Notify to client with the recent updates from hub that broadcast messages.
+    notifications.client.updateStudentInformation = function (serverResponse) {
+
+
+        //  alert('changes triggered by ' + serverResponse + ' operation');
+        notificationCounter += 1;
+        document.getElementById("span").innerHTML = notificationCounter;
+
+    };
+
+
+
+
+    // Connect to signalr hub
+
+    $.connection.hub.start().done(function () {
+        //notifications.server.joinGroup("Group1");
+        //notifications.server.sendMessage("Group1", "Hi There");
+        getRequestInformation();
+    }).fail(function (error) {
+        //  alert(error);
+        swal({
+            position: 'center',
+            type: 'warning',
+            title: 'Some Thing went wrong with SignalR, You wont be able to have real tiime notifications..',
+        })
+    });
+
+
+
+    function getRequestInformation() {
+        var model = $("#notiContent")
+        $.ajax({
+            url: '/Noti/SendNoti',
+            contentType: 'application/json',
+            type: 'GET',
+
+            success: function (result) {
+                model.empty().append(result);
+            }
+
+        })
+    }
+
+
+    $("#LoadingStatus").html("Loading....");
+
+    if(@Session["ism"].ToString() == "1")
+    {
+        $.ajax({
+            url: "/testLogin/employee",
+
+            dataType: 'json',
+            contentType: 'application/json',
+            cache: false,
+            processData: false,
+            success: function (eList) {
+                var SetData = $("#SetEmployeeList");
+                for (var i = 0; i < eList.length; i++) {
+                    var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                           "<td>" + eList[i].ssn + "</td>" +
+                           "<td>" + eList[i].name + "</td>" +
+                           "<td>" + eList[i].mail + "</td>" +
+                           "<td>" + eList[i].Casual_vacation + "</td>" +
+                           "<td>" + eList[i].Regular_vacation + "</td>" +
+                           "<td>" + eList[i].emp_name + "</td>" +
+                           "<td>" + eList[i].dep + "</td>" +
+                           "<td>" +convertDate(eList[i].hiringDate) + "</td>" +
+
+                            "</tr>";
+                    SetData.append(Data);
+                    $("#LoadingStatus").html(" ");
+
+                }
+            }
+        });
+        $.ajax({
+            url: "/testLogin/managerEmployees",
+
+            dataType: 'json',
+            contentType: 'application/json',
+            cache: false,
+            processData: false,
+            success: function (eList) {
+
+                var table = document.getElementById("edit");
+                var header = document.createElement('header');
+                header.innerHTML = "<b>Edit</b>" ;
+                table.appendChild(header);
+
+                var delet = document.getElementById("Del");
+                var hd = document.createElement('hder');
+                hd.innerHTML = "<b>Delete</b>" ;
+                delet.appendChild(hd);
+
+                var aTag = document.createElement('a');
+                aTag.setAttribute('href',"#");
+                aTag.innerHTML = "Add new Employee";
+                aTag.classList.add("btn");
+                aTag.classList.add("btn-info");
+                aTag.addEventListener("click", function(){
+                    $("#form")[0].reset();
+                    $("#EID").val(0);
+                   
+                    $("#ModalTitle").html("Add New Employee");
+                    $("#MyModal").modal();
+                });
+                document.getElementById("BtnGrp").appendChild(aTag);
+
+
+                var vacLog = document.createElement('a');
+                vacLog.setAttribute('href',"#");
+                vacLog.innerHTML = "Vacations log";
+                vacLog.classList.add("btn");
+                vacLog.classList.add("btn-info");
+                vacLog.style.left = "490px";
+                vacLog.style.position = "absolute";
+
+                vacLog.addEventListener("click", function(){
+                    window.location.href = "/RequestsLog/index";
+                });
+                //    $.ajax({
+                //        url: '/Noti/SendRequestNotification',
+                //        contentType: 'application/html ; charset:utf-8',
+                //        type: 'GET',
+                //        dataType: 'html',
+                //        success: function (response) {
+                //            window.location.href = "/Noti/index";
+                //        },
+                //        error: function (error) {
+                //            console.log(error);
+                //        }
+                //    })
+                //});
+                //document.getElementById("BtnGrp").appendChild("&nbsp");
+                document.getElementById("BtnGrp").appendChild(vacLog);
+
+
+
+                var span = document.createElement('span');
+                span.id="span";
+                span.classList.add('count');
+                span.innerHTML = "0";
+                // span.appendChild(notiCounter);
+
+                var spanContainer = document.createElement('span');
+                spanContainer.classList.add('noti');
+                spanContainer.classList.add('glyphicon');
+                spanContainer.classList.add('glyphicon-bell');
+                spanContainer.style.display = "inline-block";
+                spanContainer.style.position = "relative";
+                spanContainer.style.float = "right";
+                spanContainer.appendChild(span);
+                spanContainer.addEventListener("click",function(e){
+
+                    var ullist = document.createElement('ul');
+
+                    ullist.id = "notiContent";
+
+                    var notidiv = document.createElement('div');
+                    notidiv.classList.add("noti-top-arrow");
+                    notidiv.style.width = "25px";
+                    notidiv.style.position = "relative";
+                    notidiv.style.left = "10px";
+                    notidiv.style.top = "auto";
+
+                    notificationCounter = 0;
+                    document.getElementById("span").innerHTML = notificationCounter;
+
+                    var NotificationIcon = document.createElement('div');
+                    NotificationIcon.classList.add("noti-content");
+                    NotificationIcon.appendChild(notidiv);
+                    NotificationIcon.appendChild(ullist);
+                    NotificationIcon.style.display = "block";
+                    NotificationIcon.style.position = "absolute";
+                    NotificationIcon.style.height = "220px";
+                    NotificationIcon.style.top = "140px";
+                    NotificationIcon.style.border = "1px solid black";
+
+
+                    document.body.appendChild(NotificationIcon);
+
+                    e.stopPropagation();
+                    $('.noti-content').show();
+                    var count = 0;
+                    count = parseInt($('span.count').html()) || 0;
+                    //only load notification if not already loaded
+                    if (count >= 0) {
+                        updateNotification();
+                    }
+                    $('span.count', this).html('&nbsp;');
+                })
+                // hide notifications
+                $('html').click(function () {
+                    $('.noti-content').hide();
+                    $('.noti-content').remove();
+
+                })
+
+                // update notification
+                function updateNotification() {
+                    $('#notiContent').empty();
+                    $('#notiContent').append($('<li>Loading...</li>'));
+                    $.ajax({
+                        url: '/Noti/sendNoti',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        success: function (response) {
+                            $('#notiContent').empty();
+                            if (response.length  == 0) {
+                                $('#notiContent').append($('<li>No New Requests</li>'));
+                            }
+                            else
+                            {
+                                response = response.sort(function(a, b){return b.vacID-a.vacID});
+                                $.each(response, function (index, value) {
+                                    var vi= value.vacID;
+
+                                    // $('#notiContent').append($('<li><a  href = "http://localhost:2982/Approval/index"> New request from :  @Session["name"].ToString() </a></li>'));
+
+                                    $('#notiContent').append($('<li><a  href = "http://localhost:2982/Approval/index?vid='+value.vacID+'" > New request from :  ' + value.empName + value.empID + ' (' + value.vacID + ') added </a></li>'));
+                                });
+                            }
+
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    })
+                }
+                var clicked = false;
+                $('#notiContent').first().find('a').on("click", function (f) {
+                    if(clicked===false){
+                        clicked=true;
+                    }else{
+                        f.preventDefault();
+                    }
+                });
+
+                // update notification count
+                function updateNotificationCount() {
+                    var count = 0;
+                    count = parseInt($('span.count').html()) || 0;
+                    count++;
+                    $('span.count').html(count);
+                }
+
+                // signalr js code for start hub and send receive notification
+
+                document.getElementById("BtnGrp").appendChild(spanContainer);
+
+                var SetData = $("#SetEmployeeList");
+                for (var i = 0; i < eList.length; i++) {
+                    var EditTag = document.createElement('a');
+                    EditTag.setAttribute("href","#");
+                    EditTag.innerHTML = "<span class='glyphicon glyphicon-edit'></span>";
+                    EditTag.classList.add("btn");
+                    EditTag.classList.add("btn-warning");
+                    EditTag.addEventListener("click",function(){
+                        var id = Number(this.parentElement.parentElement.children[0].innerText);
+                        var url = "/Employee/GetEmployeeById?id=" + id;
+                        $("#ModalTitle").html("Update Employee Record");
+                       
+                        $("#MyModal").modal();
+                       
+                        $("#loader").show();
+                        $.ajax({
+                            type: "GET",
+                            url: url,
+                            success: function (obj) {
+                               // var obj = JSON.parse(data);
+                                $("#ssn").val(obj.emp_ssn);
+                                $("#EName").val(obj.name);
+                                $("#E-mail").val(obj.Email);
+                                //$("#casualavail").val(obj.Casual_vacation);
+                                //$("#Regularavail").val(obj.Regular_vacation);
+                                $("#mgr_ssn").val(obj.mgr_ssn);
+                                $("#dName").val(obj.Dno);
+                                $("#total").val(obj.Total_Available_days);
+                                $("#hire").val(convertDate(obj.Hiring_Date));
+                                $("#loader").hide();
+
+                            }
+                        })
+                    });
+
+                    var DelTag = document.createElement('a');
+                    DelTag.setAttribute("href","#");
+
+
+                    DelTag.innerHTML = "<span class='glyphicon glyphicon-trash'></span>";
+                    DelTag.classList.add("btn");
+                    DelTag.classList.add("btn-danger");
+                    DelTag.addEventListener("click",function(){
+                        var id = Number(this.parentElement.parentElement.children[0].innerText);
+                        var url = "/Employee/GetEmployeeById?id=" + id;
+                        $("#ssn").val(id);
+                        $("#DeleteConfirmation").modal("show");
+                    });
+
+                    var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                           "<td>" + eList[i].ssn + "</td>" +
+                           "<td>" + eList[i].name + "</td>" +
+                           "<td>" + eList[i].mail + "</td>" +
+                           "<td>" + eList[i].Casual_vacation + "</td>" +
+                           "<td>" + eList[i].Regular_vacation + "</td>" +
+                           "<td>" + eList[i].emp_name + "</td>" +
+                           "<td>" + eList[i].dep + "</td>" +
+                           "<td>" + convertDate(eList[i].hiringDate) + "</td>" +
+                           //"<td>" + eList[i].mgr + "</td>" +
+                            "<td class='edit'></td>" +
+                            "<td class = 'del'></td>" +
+                            "</tr>";
+                    SetData.append(Data);
+                    document.getElementsByClassName("edit")[i].appendChild(EditTag);
+                    document.getElementsByClassName("del")[i].appendChild(DelTag);
+
+                    $("#LoadingStatus").html(" ");
+
+                }
+            }
+        });
+
+    }
+
+
+    else{
+        $.ajax({
+            url: "/testLogin/employee",
+
+            dataType: 'json',
+            contentType: 'application/json',
+            cache: false,
+            processData: false,
+            success: function (eList) {
+                var SetData = $("#SetEmployeeList");
+                for (var i = 0; i < eList.length; i++) {
+                    var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                           "<td>" + eList[i].ssn + "</td>" +
+                           "<td>" + eList[i].name + "</td>" +
+                           "<td>" + eList[i].mail + "</td>" +
+                           "<td>" + eList[i].Casual_vacation + "</td>" +
+                           "<td>" + eList[i].Regular_vacation + "</td>" +
+                           "<td>" + eList[i].emp_name + "</td>" +
+                           "<td>" + eList[i].dep + "</td>" +
+                           "<td>" + convertDate(eList[i].hiringDate) + "</td>" +
+                            "</tr>";
+                    SetData.append(Data);
+                    $("#LoadingStatus").html(" ");
+
+                }
+            }
+        });
+    }
+    function convertDate (date){
+        var jsondateString = date.substr(6);
+        var current = new Date(parseInt(jsondateString ));
+        var month = current.getMonth() + 1;
+        var day = current.getDate();
+        var year = current.getFullYear();
+        var date = day + "/" + month + "/" + year;
+        return date
+    }
+
+    $("#SaveEmployeeRecord").click(function () {
+        var data = $("#SubmitForm").serialize();
+        $.ajax({
+            type: "Post",
+            url: "/testLogin/SaveData",
+            data: data,
+            success: function (result) {
+                // alert("Success!..");
+                if(result == true)
+                {
+                    swal({
+                        position: 'centert',
+                        type: 'success',
+                        title: 'New Employee has been saved',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    window.location.href = "/testLogin/UserDashBoard";
+                    $("#MyModal").modal("hide");
+                }
+                else
+                {
+                    swal(
+                    'Oops...',
+                    'Something went wrong!',
+                    'error'
+                       )
+                }
+
+
+            },
+            error:function()
+            {
+                swal(
+                     'Oops...',
+                     'Something went wrong!',
+                     'error'
+                        )
+            }
+
+        })
+    })
+
+
+    //Show The Popup Modal For DeleteComfirmation
+    var ConfirmDelete = function (ele) {
+        var EID = Number(ele.parentElement.parentElement.children[0].innerText);
+
+
+        var EID = $("#ssn").val();
+        $.ajax({
+            type: "POST",
+            url: "/testLogin/DeleteEmployeeRecord?id=" + EID,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+                $(".row_" + EID).remove();
+            }
+        })
+    }
+
+
+</script>

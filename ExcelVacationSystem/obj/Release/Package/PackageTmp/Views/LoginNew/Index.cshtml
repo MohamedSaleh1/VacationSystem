@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ExcelVacationSystem.Models.Employee>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.emp_ssn)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.available_vacationDays)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Employee2.name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Department.name)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.emp_ssn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.available_vacationDays)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee2.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Department.name)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.emp_ssn }) |
+                @Html.ActionLink("Details", "Details", new { id = item.emp_ssn }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.emp_ssn })
+            </td>
+        </tr>
+    }
+
+</table>
+
+@using (Html.BeginForm())
+{
+    <input type="submit" value="Post" />
+}

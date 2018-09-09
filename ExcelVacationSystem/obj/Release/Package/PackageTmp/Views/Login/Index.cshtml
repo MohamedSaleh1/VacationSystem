@@ -1,0 +1,36 @@
+﻿@model ExcelVacationSystem.Models.Employee
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Login</h2>
+
+@Html.Label("Email")
+<input type="email" id="textForEmail" placeholder="Enter Email" />
+<br />
+<br />
+@Html.Label("password")
+<input type="password" id="TextForPassword" placeholder="enter Password" />
+<br />
+<a href="#" class="btn btn-info" onclick="login()">Login</a>
+<script>
+    function login() {
+        debugger
+        var mail = $("#textForEmail").val();
+        var pass = $("#TextForPassword").val();
+        //sessionStorage.setItem("mail", mail);
+       // sessionStorage.setItem("pass",pass);
+        $.ajax({
+            type: "Get",
+            url: "/Login/login?mail=" + mail + "&pass=" + pass,
+            success: function () {
+                   window.location.href ="@Url.Action("log","Login")";
+               
+                }
+        });
+
+       window.location.href = "/Login/log";
+
+
+    }
+</script>

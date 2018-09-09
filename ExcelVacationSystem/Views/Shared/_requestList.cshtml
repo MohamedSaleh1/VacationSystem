@@ -1,0 +1,33 @@
+﻿@model IEnumerable<ExcelVacationSystem.Models.request>
+
+<table class="table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.empID)</th>
+        <th>
+            @Html.DisplayNameFor(model => model.vacID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.date)
+        </th>
+       
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.empID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.vacID)
+            </td>
+            <th>
+                @Html.DisplayFor(modelItem => item.date)
+            </th>
+           
+
+        </tr>
+    }
+
+</table>

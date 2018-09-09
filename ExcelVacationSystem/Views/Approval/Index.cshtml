@@ -1,0 +1,244 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/core.js"></script>
+<script src="~/Scripts/momentFull.js"></script>
+<script src="~/Scripts/sweet_alert.js"></script>
+<script src="~/Scripts/modernizr-2.6.2.js"></script>
+<script src="~/Scripts/jquery_flip.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/CSS/dateTimePicker.css" rel="stylesheet" />
+<link href="~/CSS/fullCalendar.css" rel="stylesheet" />
+<link href="~/CSS/fullCalendar_print.css" rel="stylesheet" />
+<link href="~/CSS/sweet_alert.css" rel="stylesheet" />
+<h2>Approval</h2>
+<p>
+    @ViewBag.name requestd a @ViewBag.type for <b id="HoursOrDays"></b>  from @ViewBag.from to @ViewBag.to ..
+</p>
+@*<a href="#" id="aprrove" class="btn btn-info" onclick="approve()">approve</a>*@
+
+<button id='aprrove'  >approve </button>&nbsp;&nbsp;&nbsp;&nbsp;
+@*<button id='decline'onclick="RejectConfirmation">decline</button>*@
+<a href="#" id="decline" class="btn btn-info" onclick="RejectConfirmation()">decline</a>
+
+
+
+<div class="modal fade" id="Confirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Decline Reason</h4>
+            </div>
+            <div class="modal-body">
+                @Html.Label("Reason")
+               <input type="text" id="txt" placeholder="Decline reason" />
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-danger" onclick="Confirm()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<script>
+    var daysOrHours = @(Int32.Parse(Session["daysOrHours"].ToString()));
+    if(daysOrHours == 0)
+    {
+        var z = document.createElement('p');
+        z.innerHTML = '@ViewBag.days days';
+        document.getElementById("HoursOrDays").appendChild(z);
+        //document.getElementById("HoursOrDays").appendChild(@ViewBag.days);
+    }
+    else if(daysOrHours == 1)
+    {
+        var z = document.createElement('p');
+        z.innerHTML = '@ViewBag.Hours Hours';
+        document.getElementById("HoursOrDays").appendChild(z);
+
+        // document.getElementById("HoursOrDays").appendChild(@ViewBag.Hours);
+
+    }
+    var buttonCheck = 0;
+    $("#aprrove , #decline").click(function() {
+        if (this.id == "aprrove")
+        {
+            buttonCheck = 1;
+
+            @*$.ajax({
+                type: "GET",
+                url: "@Url.Action("approval", "Approval")?check=" + buttonCheck,
+                success: function () {
+                    window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+                    //alert("accepted success..");
+                    swal({
+                        position: 'center',
+                        type: 'success',
+                        title: '"Successful Operation',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    //alert("error");
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: '"Some thing went wrong',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                }
+            })*@
+            var pass;
+            swal({
+                title: 'Submit Your Password PLease',
+                type:'input',
+                inputType: 'password',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                confirmButtonColor: '#3085d6',
+                showLoaderOnConfirm: true,
+                inputPlaceholder:"Password*",
+            },
+            function(inputValue)
+            {
+                
+                if (inputValue === false) return false;
+
+                if (inputValue === "") {
+                    swal.showInputError("You need to write your Password!");
+                    return false
+                }
+
+                pass = inputValue;
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("approval", "Approval")?check=" + buttonCheck+"&ComingPassword="+inputValue,
+                    success: function () {
+                    window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+                        //alert("accepted success..");
+                    swal({
+                        position: 'center',
+                        type: 'success',
+                        title: '"Successful Operation',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    //alert("error");
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: '"Some thing went wrong',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                }
+            })
+
+            }
+         )  
+        }
+        else if (this.id == "decline")
+        {
+            buttonCheck = 2;
+
+        }
+    });
+
+    var RejectConfirmation = function () {
+
+        $("#Confirmation").modal("show");
+
+    }
+
+    var Confirm = function () {
+        var text = $("#txt").val();
+        @*$.ajax({
+            type: "GET",
+
+            url: "@Url.Action("approval", "Approval")?check=" + buttonCheck+"&text="+text,
+
+            success: function () {
+                window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+                //alert("reject success..");
+                swal({
+                    position: 'center',
+                    type: 'success',
+                    title: '"Successful Operation',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // alert("error");
+                swal({
+                    position: 'center',
+                    type: 'error',
+                    title: '"Some thing went wrong',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            }
+        })*@
+        swal({
+            title: 'Submit Your Password PLease',
+            type:'input',
+            inputType: 'password',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            confirmButtonColor: '#3085d6',
+            showLoaderOnConfirm: true,
+            inputPlaceholder:"Password*",
+        },
+               function(inputValue)
+               {
+                
+                   if (inputValue === false) return false;
+
+                   if (inputValue === "") {
+                       swal.showInputError("You need to write your Password!");
+                       return false
+                   }
+
+                   pass = inputValue;
+                   $.ajax({
+                       type: "GET",
+                       url: "@Url.Action("approval", "Approval")?check=" + buttonCheck+"&ComingPassword="+inputValue+"&text="+text,
+                       success: function () {
+                           window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+                           //alert("accepted success..");
+                           swal({
+                               position: 'center',
+                               type: 'success',
+                               title: '"Successful Operation',
+                               showConfirmButton: false,
+                               timer: 2000
+                           })
+                       },
+                   error: function (XMLHttpRequest, textStatus, errorThrown) {
+                       //alert("error");
+                       swal({
+                           position: 'center',
+                           type: 'error',
+                           title: '"Some thing went wrong',
+                           showConfirmButton: false,
+                           timer: 2000
+                       })
+                   }
+               })
+
+    }
+         ) 
+    }
+
+</script>
+

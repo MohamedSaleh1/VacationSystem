@@ -1,0 +1,88 @@
+﻿@model ExcelVacationSystem.Models.vacation
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Vacation Request </h2>
+
+@Html.Label("from")
+@Html.EditorFor(m => m.fromDate,
+new { htmlAttributes = new { @class = "form-control date-picker" } })
+
+@Html.Label("To")
+@Html.EditorFor(m => m.toDate, new { htmlAttributes = new { @class = "form-control date-picker" } })
+<a href="#" class="btn btn-info" id="button" onclick="req()">Request</a>
+
+<div id="days">
+
+</div>
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery.signalR-2.2.2.js"></script>
+<script src="/signalr/hubs"></script>
+<script type="text/javascript">
+
+    function parseDate(str) {
+        var mdy = str.split('/');
+        return new Date(mdy[2], mdy[0] - 1, mdy[1]);
+    }
+
+    function daydiff(first, second) {
+        return Math.round((second - first) / (1000 * 60 * 60 * 24));
+    }
+
+    Date.daysBetween = function (date1, date2) {
+        //Get 1 day in milliseconds
+        var one_day = 1000 * 60 * 60 * 24;
+
+        // Convert both dates to milliseconds
+        var date1_ms = date1.getTime();
+        var date2_ms = date2.getTime();
+
+        // Calculate the difference in milliseconds
+        var difference_ms = date2_ms - date1_ms;
+
+        // Convert back to days and return
+        return Math.round(difference_ms / one_day);
+    }
+   
+
+    $("#fromDate").datepicker();
+    $("#toDate").datepicker();
+    function req(){
+      
+        var from = parseDate($("#fromDate").val());
+        var sfrom= new Date(from).toJSON();
+        var to = parseDate($("#toDate").val());
+        var sto = new Date(to).toJSON();
+        var ndays = daydiff(from, to);
+       // var stFrom = $.datepicker.formatDate('dd/MM/yyyy', from);
+        debugger
+      
+        $.ajax({
+            type: "GET",
+            
+            url: "@Url.Action("RequestedDays", "requestOnClick")?d=" + ndays + "&from=" + sfrom + "&to=" + sto,
+           
+            success: function (data) {
+                var obj = JSON.parse(data);
+                if (data == 1) {
+                    window.location.href = "@Url.Action("sendMail", "requestOnClick")";
+                    alert("Request sent to your head manager..");
+                  
+                }
+                else{
+                    alert("check your available days!..");
+                }
+           
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("error");
+            }
+            })
+    }
+  
+
+</script>

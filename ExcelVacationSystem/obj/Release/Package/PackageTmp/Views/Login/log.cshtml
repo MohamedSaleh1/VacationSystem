@@ -1,0 +1,80 @@
+﻿@model IEquatable<ExcelVacationSystem.Models.Employee>
+
+@{
+    ViewBag.Title = "login";
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<h2>Welcome</h2>
+
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee ssn</th>
+            <th>Employee Name</th>
+            <th>Email</th>
+            <th>Available days</th>
+            <th>Manger name</th>
+            <th>Department name</th>
+            <th>Action(Edit)</th>
+            <th>Action(Delete)</th>
+
+        </tr>
+    </thead>
+    <tbody id="SetEmployeeList">
+        <tr id="LoadingStatus" style="color:red"></tr>
+
+    </tbody>
+
+</table>
+
+<script>
+    $(document).ready(function () {
+       // var opj = sessionStorage["obj"];
+        var mail = sessionStorage["mail"];
+        var pass = sessionStorage["pass"];
+        $("#LoadingStatus").html("Loading....");
+        debugger
+    $.ajax({
+        type: "Get",
+        url: "/Login/login?mail=" + mail + "&pass=" + pass,
+       // url: "/Login/login",
+        
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        processData: false,
+        success: function (eList) {
+            var SetData = $("#SetEmployeeList");
+            for (var i = 0; i < eList.length; i++) {
+                var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                       "<td>" + eList[i].ssn + "</td>" +
+                       "<td>" + eList[i].name + "</td>" +
+                       "<td>" + eList[i].mail + "</td>" +
+                       "<td>" + eList[i].days + "</td>" +
+                       "<td>" + eList[i].emp_name + "</td>" +
+                       "<td>" + eList[i].dep + "</td>" +
+
+                       //"<td>" + eList[i].Employee2.name + "</td>" +
+                       //"<td>" + eList[i].Department.name + "</td>" +
+                       //            // "<td>" + eList[i].mgr_ssn + "</td>" +
+                                    //"<td>" + eList[i].Dno + "</td>" +
+
+                        "<td>" + "<a href='#' class='btn btn-warning' onclick='EditEmpRecord(" + eList[i].emp_ssn + ")' ><span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                        "<td>" + "<a href='#' class='btn btn-danger' onclick='DeleteEmployeeRecord(" + eList[i].emp_ssn + ")'><span class='glyphicon glyphicon-trash'></span></a>" + "</td>" +
+                        "</tr>";
+                SetData.append(Data);
+                $("#LoadingStatus").html(" ");
+
+            }
+        }
+    })
+    });
+</script>
+

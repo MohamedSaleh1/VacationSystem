@@ -1,0 +1,15 @@
+﻿body {
+   background-image: url(https://www.google.com.eg/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwjquNeXh6rYAhVDjlQKHXB5Av4QjRwIBw&url=https%3A%2F%2Fwuzzuf.net%2Fjobs%2Fcareers%2FExcel-Systems-LLC-Egypt-13729&psig=AOvVaw1kccejHVpUoTAa7KBBS4IW&ust=1514459398510480);
+    margin: 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    /*-moz-background-size: cover;
+    -webkit-background-size: cover;*/
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}

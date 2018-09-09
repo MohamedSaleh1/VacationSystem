@@ -1,0 +1,106 @@
+﻿@model IEnumerable<ExcelVacationSystem.Models.Employee>
+@{
+    ViewBag.Title = "UserDashBoard";
+}
+<script src="~/Scripts/jquery-1.12.4.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+
+    <legend > welcome @Session["name"].ToString() </legend>
+<a href="#" class="btn btn-info" onclick="requestvac(0)">Request a vacation</a>
+<br />
+<br />
+<table class="table">
+    <tr>
+        <th>
+            @*@Html.Label("Employee SSN")*@
+            @Html.DisplayNameFor(model => model.emp_ssn)
+        </th>
+        
+        <th>
+            @Html.DisplayNameFor(model => model.name)
+        </th>
+        
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.available_vacationDays)
+        </th>
+        <th>
+            @Html.Label("department")
+            @Html.DisplayNameFor(model => model.Department.name)
+        </th>
+        <th>
+            @Html.Label("manager")
+            @Html.DisplayNameFor(model => model.Employee2.name)
+        </th>
+        <th>
+            @Html.Label("Action")
+        </th>
+    </tr>
+    <tr>
+        <td>
+            @Session["ssn"].ToString()
+        </td>
+        <td>
+            @Session["name"].ToString()
+        </td>
+        <td>
+            @Session["mail"].ToString()
+        </td>
+        <td>
+            @Session["avail"].ToString()
+        </td>
+        <td>
+            @Session["dep"].ToString()
+        </td>
+        <td>
+            @Session["mgr"].ToString()
+        </td>
+    </tr>
+    <tr id="SetEmployeeList">
+        <td id="LoadingStatus" style="color:red"></td>
+    </tr>
+ 
+</table>
+
+
+@*@if (Session["mail"] != null)
+{ <text >
+    Welcome @Session["mail"].ToString() </text>
+}*@ 
+  
+<script>
+    $("#LoadingStatus").html("Loading....");
+    debugger
+    debugger
+    $.ajax({
+        url: "/testLogin/managerEmployees",
+
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        processData: false,
+        success: function (eList) {
+            var SetData = $("#SetEmployeeList");
+            for (var i = 0; i < eList.length; i++) {
+                var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                       "<td>" + eList[i].ssn + "</td>" +
+                       "<td>" + eList[i].name + "</td>" +
+                       "<td>" + eList[i].mail + "</td>" +
+                       "<td>" + eList[i].days + "</td>" +
+                       "<td>" + eList[i].emp_name + "</td>" +
+                       "<td>" + eList[i].dep + "</td>" +
+                        "<td>" + "<a href='#' class='btn btn-warning' onclick='EditEmpRecord(" + eList[i].emp_ssn + ")' ><span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                        "<td>" + "<a href='#' class='btn btn-danger' onclick='DeleteEmployeeRecord(" + eList[i].emp_ssn + ")'><span class='glyphicon glyphicon-trash'></span></a>" + "</td>" +
+                        "</tr>";
+                SetData.append(Data);
+                $("#LoadingStatus").html(" ");
+
+            }
+        }
+    });
+</script>
+

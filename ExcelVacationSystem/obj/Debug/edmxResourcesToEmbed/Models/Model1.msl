@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ExcelsystemsModelStoreContainer" CdmEntityContainer="ExcelsystemsEntities2">
+    <EntitySetMapping Name="Departments">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.Department">
+        <MappingFragment StoreEntitySet="Department">
+          <ScalarProperty Name="dep_no" ColumnName="dep_no" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="mgrSsn" ColumnName="mgrSsn" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Employees">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.Employee">
+        <MappingFragment StoreEntitySet="Employee">
+          <ScalarProperty Name="emp_ssn" ColumnName="emp_ssn" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="mgr_ssn" ColumnName="mgr_ssn" />
+          <ScalarProperty Name="Dno" ColumnName="Dno" />
+          <ScalarProperty Name="isManager" ColumnName="isManager" />
+          <ScalarProperty Name="Casual_vacation" ColumnName="Casual_vacation" />
+          <ScalarProperty Name="Regular_vacation" ColumnName="Regular_vacation" />
+          <ScalarProperty Name="Total_Available_days" ColumnName="Total_Available_days" />
+          <ScalarProperty Name="Social_insurance" ColumnName="Social_insurance" />
+          <ScalarProperty Name="Hiring_Date" ColumnName="Hiring_Date" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Events">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.Event">
+        <MappingFragment StoreEntitySet="Events">
+          <ScalarProperty Name="EventID" ColumnName="EventID" />
+          <ScalarProperty Name="Subject" ColumnName="Subject" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="Start" ColumnName="Start" />
+          <ScalarProperty Name="End" ColumnName="End" />
+          <ScalarProperty Name="ThemeColor" ColumnName="ThemeColor" />
+          <ScalarProperty Name="IsFullDay" ColumnName="IsFullDay" />
+          <ScalarProperty Name="isCasual" ColumnName="isCasual" />
+          <ScalarProperty Name="isRegular" ColumnName="isRegular" />
+          <ScalarProperty Name="days" ColumnName="days" />
+          <ScalarProperty Name="isPermission" ColumnName="isPermission" />
+          <ScalarProperty Name="hours" ColumnName="hours" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="requests">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.request">
+        <MappingFragment StoreEntitySet="request">
+          <ScalarProperty Name="empID" ColumnName="empID" />
+          <ScalarProperty Name="vacID" ColumnName="vacID" />
+          <ScalarProperty Name="date" ColumnName="date" />
+          <ScalarProperty Name="approval" ColumnName="approval" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="sysdiagrams">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.sysdiagram">
+        <MappingFragment StoreEntitySet="sysdiagrams">
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+          <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+          <ScalarProperty Name="version" ColumnName="version" />
+          <ScalarProperty Name="definition" ColumnName="definition" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vacations">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.vacation">
+        <MappingFragment StoreEntitySet="vacation">
+          <ScalarProperty Name="vac_ID" ColumnName="vac_ID" />
+          <ScalarProperty Name="num_days" ColumnName="num_days" />
+          <ScalarProperty Name="fromDate" ColumnName="fromDate" />
+          <ScalarProperty Name="toDate" ColumnName="toDate" />
+          <ScalarProperty Name="Reason" ColumnName="Reason" />
+          <ScalarProperty Name="isCasual" ColumnName="isCasual" />
+          <ScalarProperty Name="isRegular" ColumnName="isRegular" />
+          <ScalarProperty Name="isPermission" ColumnName="isPermission" />
+          <ScalarProperty Name="hours" ColumnName="hours" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

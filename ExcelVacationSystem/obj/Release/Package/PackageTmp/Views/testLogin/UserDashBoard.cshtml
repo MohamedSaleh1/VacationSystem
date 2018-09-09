@@ -1,0 +1,208 @@
+﻿@model ExcelVacationSystem.Models.Employee
+@{
+    ViewBag.Title = "UserDashBoard";
+}
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<br />
+<legend > welcome @Session["name"].ToString() </legend>
+<a href="#" class="btn btn-info" onclick="AddNewEmployee(0)">Add new Employee</a>
+<a href="#" class="btn btn-info" id="btn" onclick="request()">Request Vacation</a>
+<script>
+
+    function request()
+    {
+        window.location.href = "/requestOnClick/index";
+    }
+</script>
+@*<button id="myButton" class="float-left submit-button">Request Vacation</button>*@
+<br />
+<br />
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee ssn</th>
+            <th>Employee Name</th>
+            <th>Email</th>
+            <th>Available days</th>
+            <th>Manger name</th>
+            <th>Department name</th>
+            <th>Action(Edit)</th>
+            <th>Action(Delete)</th>
+
+        </tr>
+    </thead>
+    <tbody id="SetEmployeeList">
+        <tr id="LoadingStatus" style="color:red"></tr>
+
+    </tbody>
+
+</table>
+
+<div class="modal fade" id="MyModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 id="ModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+                <form id="form">
+                    <fieldset id="SubmitForm">
+                        @Html.HiddenFor(m => m.emp_ssn, new { @id = "EID" })
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.emp_ssn, new { @id = "ssn", @class = "form-control", @placeholder = "ssn*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.name, new { @id = "EName", @class = "form-control", @placeholder = "Name*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Email, new { @id = "E-mail", @class = "form-control", @placeholder = "E-mail*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.available_vacationDays, new { @id = "avail", @class = "form-control", @placeholder = "number of days*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.mgr_ssn, new { @id = "manager", @class = "form-control", @placeholder = "managerSSN*" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Dno, new { @id = "dName", @class = "form-control", @placeholder = "Department number*" })
+                        </div>
+
+                        <div class="form-group">
+                            <a href="#" class="btn btn-block btn-danger" id="SaveEmployeeRecord">Save</a>
+                        </div>
+
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete Employee Record</h4>
+            </div>
+            <div class="modal-body">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancle</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+  
+<script>
+    $("#LoadingStatus").html("Loading....");
+    debugger
+    if(@Session["ism"].ToString() == "1")
+    { $.ajax({
+        url: "/testLogin/managerEmployees",
+
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        processData: false,
+        success: function (eList) {
+            var SetData = $("#SetEmployeeList");
+            for (var i = 0; i < eList.length; i++) {
+                var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                       "<td>" + eList[i].ssn + "</td>" +
+                       "<td>" + eList[i].name + "</td>" +
+                       "<td>" + eList[i].mail + "</td>" +
+                       "<td>" + eList[i].days + "</td>" +
+                       "<td>" + eList[i].emp_name + "</td>" +
+                       "<td>" + eList[i].dep + "</td>" +
+                        "<td>" + "<a href='#' class='btn btn-warning' onclick='EditEmpRecord(" + eList[i].emp_ssn + ")' ><span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                        "<td>" + "<a href='#' class='btn btn-danger' onclick='DeleteEmployeeRecord(" + eList[i].emp_ssn + ")'><span class='glyphicon glyphicon-trash'></span></a>" + "</td>" +
+                        "</tr>";
+                SetData.append(Data);
+                $("#LoadingStatus").html(" ");
+
+            }
+        }
+    });
+
+   
+    function AddNewEmployee(id) {
+        $("#form")[0].reset();
+        $("#EID").val(0);
+
+        $("#ModalTitle").html("Add New Employee");
+        $("#MyModal").modal();
+
+    }
+   
+   
+   
+    $("#SaveEmployeeRecord").click(function () {
+        var data = $("#SubmitForm").serialize();
+        $.ajax({
+            type: "Post",
+            url: "/testLogin/SaveData",
+            data: data,
+            success: function (result) {
+                alert("Success!..");
+                window.location.href = "/testLogin/UserDashBoard";
+                $("#MyModal").modal("hide");
+
+            }
+        })
+    })
+        //Show The Popup Modal For DeleteComfirmation
+    var DeleteEmployeeRecord = function (id) {
+        $("#EID").val(id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        var EID = $("#EID").val();
+        $.ajax({
+            type: "POST",
+            url: "/testLogin/DeleteEmployeeRecord?id=" + EID,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+                $(".row_" + EID).remove();
+            }
+        })
+    }
+
+    }
+    else{
+        $.ajax({
+            url: "/testLogin/employee",
+
+            dataType: 'json',
+            contentType: 'application/json',
+            cache: false,
+            processData: false,
+            success: function (eList) {
+                var SetData = $("#SetEmployeeList");
+                for (var i = 0; i < eList.length; i++) {
+                    var Data = "<tr class='row_" + eList[i].ssn + "'>" +
+                           "<td>" + eList[i].ssn + "</td>" +
+                           "<td>" + eList[i].name + "</td>" +
+                           "<td>" + eList[i].mail + "</td>" +
+                           "<td>" + eList[i].days + "</td>" +
+                           "<td>" + eList[i].emp_name + "</td>" +
+                           "<td>" + eList[i].dep + "</td>" +
+                            "<td>" + "<a href='#' class='btn btn-warning' onclick='EditEmpRecord(" + eList[i].emp_ssn + ")' ><span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                            "<td>" + "<a href='#' class='btn btn-danger' onclick='DeleteEmployeeRecord(" + eList[i].emp_ssn + ")'><span class='glyphicon glyphicon-trash'></span></a>" + "</td>" +
+                            "</tr>";
+                    SetData.append(Data);
+                    $("#LoadingStatus").html(" ");
+
+                }
+            }
+        });
+    }
+</script>
+

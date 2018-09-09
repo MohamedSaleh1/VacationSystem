@@ -1,0 +1,81 @@
+﻿@model ExcelVacationSystem.Models.Employee
+@{
+    ViewBag.Title = "Login";
+}
+<link rel="stylesheet" type="text/css" href="~/CSS/Login.css">
+@*@using (Html.BeginForm("Login", "testLogin", FormMethod.Post))*@
+@*{
+    <fieldset>
+        <legend> Login</legend>
+
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @if (@ViewBag.Message != null)
+        {
+            <div style="border: 1px solid red">
+                @ViewBag.Message
+            </div>
+        }
+        <table>
+            <tr>
+                <td>@Html.LabelFor(a => a.Email)</td>
+                <td>@Html.TextBoxFor(a => a.Email)</td>
+                <td>@Html.ValidationMessageFor(a => a.Email)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.LabelFor(a => a.password)
+                </td>
+                <td>
+                    @Html.PasswordFor(a => a.password)
+                </td>
+                <td>
+                    @Html.ValidationMessageFor(a => a.password)
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Login" />
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </fieldset>
+}*@
+
+
+
+<div class="col-xs-4 col-md-offset-8">
+    <div class="login" id="card">
+        <div class="front signin_form">
+            <p>Login Your Account</p>
+            <form class="login-form">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Type your email">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="password" class="form-control" placeholder="Type your password">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-lock"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="checkbox">
+                    <label><input type="checkbox">Remember me.</label>
+                </div>
+
+                <div class="form-group sign-btn">
+                    <input type="submit" class="btn" value="Log in">
+                </div>
+            </form>
+        </div>
+</div>
+</div>
+<script src="~/Scripts/Login.js"></script>

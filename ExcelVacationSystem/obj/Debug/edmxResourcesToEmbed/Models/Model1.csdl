@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ExcelsystemsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="Department">
+    <Key>
+      <PropertyRef Name="dep_no" />
+    </Key>
+    <Property Name="dep_no" Type="Int32" Nullable="false" />
+    <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="mgrSsn" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Employee" Relationship="Self.FK_Department_Employee" FromRole="Department" ToRole="Employee" />
+    <NavigationProperty Name="Employees" Relationship="Self.FK_Employee_Department" FromRole="Department" ToRole="Employee" />
+  </EntityType>
+  <EntityType Name="Employee">
+    <Key>
+      <PropertyRef Name="emp_ssn" />
+    </Key>
+    <Property Name="emp_ssn" Type="Int32" Nullable="false" />
+    <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+    <Property Name="mgr_ssn" Type="Int32" />
+    <Property Name="Dno" Type="Int32" />
+    <Property Name="isManager" Type="Int32" Nullable="false" />
+    <Property Name="Casual_vacation" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="Regular_vacation" Type="Decimal" Precision="18" Scale="2" />
+    <Property Name="Total_Available_days" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+    <Property Name="Social_insurance" Type="Boolean" Nullable="false" />
+    <Property Name="Hiring_Date" Type="DateTime" Precision="0" />
+    <NavigationProperty Name="Departments" Relationship="Self.FK_Department_Employee" FromRole="Employee" ToRole="Department" />
+    <NavigationProperty Name="Department" Relationship="Self.FK_Employee_Department" FromRole="Employee" ToRole="Department" />
+    <NavigationProperty Name="Employee1" Relationship="Self.FK_Employee_Employee" FromRole="Employee" ToRole="Employee1" />
+    <NavigationProperty Name="Employee2" Relationship="Self.FK_Employee_Employee" FromRole="Employee1" ToRole="Employee" />
+    <NavigationProperty Name="requests" Relationship="Self.FK_request_Employee" FromRole="Employee" ToRole="request" />
+  </EntityType>
+  <EntityType Name="Event">
+    <Key>
+      <PropertyRef Name="EventID" />
+    </Key>
+    <Property Name="EventID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Subject" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="Description" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
+    <Property Name="Start" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="End" Type="DateTime" Precision="3" />
+    <Property Name="ThemeColor" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+    <Property Name="IsFullDay" Type="Boolean" Nullable="false" />
+    <Property Name="isCasual" Type="Boolean" />
+    <Property Name="isRegular" Type="Boolean" />
+    <Property Name="days" Type="Int32" />
+    <Property Name="isPermission" Type="Boolean" />
+    <Property Name="hours" Type="Int32" />
+  </EntityType>
+  <EntityType Name="request">
+    <Key>
+      <PropertyRef Name="empID" />
+      <PropertyRef Name="vacID" />
+    </Key>
+    <Property Name="empID" Type="Int32" Nullable="false" />
+    <Property Name="vacID" Type="Int32" Nullable="false" />
+    <Property Name="date" Type="DateTime" Precision="0" />
+    <Property Name="approval" Type="Int32" />
+    <NavigationProperty Name="Employee" Relationship="Self.FK_request_Employee" FromRole="request" ToRole="Employee" />
+    <NavigationProperty Name="vacation" Relationship="Self.FK_request_vacation" FromRole="request" ToRole="vacation" />
+  </EntityType>
+  <EntityType Name="sysdiagram">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="principal_id" Type="Int32" Nullable="false" />
+    <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="version" Type="Int32" />
+    <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+  </EntityType>
+  <EntityType Name="vacation">
+    <Key>
+      <PropertyRef Name="vac_ID" />
+    </Key>
+    <Property Name="vac_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="num_days" Type="Int32" Nullable="false" />
+    <Property Name="fromDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="toDate" Type="DateTime" Precision="3" />
+    <Property Name="Reason" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+    <Property Name="isCasual" Type="Boolean" Nullable="false" />
+    <Property Name="isRegular" Type="Boolean" Nullable="false" />
+    <Property Name="isPermission" Type="Boolean" />
+    <Property Name="hours" Type="Int32" />
+    <NavigationProperty Name="requests" Relationship="Self.FK_request_vacation" FromRole="vacation" ToRole="request" />
+  </EntityType>
+  <Association Name="FK_Department_Employee">
+    <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+    <End Role="Department" Type="Self.Department" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="emp_ssn" />
+      </Principal>
+      <Dependent Role="Department">
+        <PropertyRef Name="mgrSsn" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Employee_Department">
+    <End Role="Department" Type="Self.Department" Multiplicity="0..1" />
+    <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Department">
+        <PropertyRef Name="dep_no" />
+      </Principal>
+      <Dependent Role="Employee">
+        <PropertyRef Name="Dno" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Employee_Employee">
+    <End Role="Employee" Type="Self.Employee" Multiplicity="0..1" />
+    <End Role="Employee1" Type="Self.Employee" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="emp_ssn" />
+      </Principal>
+      <Dependent Role="Employee1">
+        <PropertyRef Name="mgr_ssn" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_request_Employee">
+    <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+    <End Role="request" Type="Self.request" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="emp_ssn" />
+      </Principal>
+      <Dependent Role="request">
+        <PropertyRef Name="empID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_request_vacation">
+    <End Role="vacation" Type="Self.vacation" Multiplicity="1" />
+    <End Role="request" Type="Self.request" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="vacation">
+        <PropertyRef Name="vac_ID" />
+      </Principal>
+      <Dependent Role="request">
+        <PropertyRef Name="vacID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="ExcelsystemsEntities2" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Departments" EntityType="Self.Department" />
+    <EntitySet Name="Employees" EntityType="Self.Employee" />
+    <EntitySet Name="Events" EntityType="Self.Event" />
+    <EntitySet Name="requests" EntityType="Self.request" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
+    <EntitySet Name="vacations" EntityType="Self.vacation" />
+    <AssociationSet Name="FK_Department_Employee" Association="Self.FK_Department_Employee">
+      <End Role="Employee" EntitySet="Employees" />
+      <End Role="Department" EntitySet="Departments" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Employee_Department" Association="Self.FK_Employee_Department">
+      <End Role="Department" EntitySet="Departments" />
+      <End Role="Employee" EntitySet="Employees" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Employee_Employee" Association="Self.FK_Employee_Employee">
+      <End Role="Employee" EntitySet="Employees" />
+      <End Role="Employee1" EntitySet="Employees" />
+    </AssociationSet>
+    <AssociationSet Name="FK_request_Employee" Association="Self.FK_request_Employee">
+      <End Role="Employee" EntitySet="Employees" />
+      <End Role="request" EntitySet="requests" />
+    </AssociationSet>
+    <AssociationSet Name="FK_request_vacation" Association="Self.FK_request_vacation">
+      <End Role="vacation" EntitySet="vacations" />
+      <End Role="request" EntitySet="requests" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

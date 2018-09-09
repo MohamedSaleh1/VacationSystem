@@ -1,0 +1,957 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Vacation Request</h2>
+<div id="calender"></div>
+<link href="~/Content/sweetalert/sweet-alert.css" rel="stylesheet" />
+
+<link rel="stylesheet" type="text/css" href="~/CSS/Login.css">
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/jquery.flip.js"></script>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="eventTitle"></span></h4>
+            </div>
+            <div class="modal-body">
+                <button id="btnDelete" class="btn btn-default btn-sm pull-right">
+                    <span class="glyphicon glyphicon-remove"></span> Remove
+                </button>
+                <button id="btnEdit" class="btn btn-default btn-sm pull-right" style="margin-right:5px;">
+                    <span class="glyphicon glyphicon-pencil"></span> Edit
+                </button>
+                <p id="pDetails"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalSave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Vacation Request</h4>
+            </div>
+
+            <div class="modal-body">
+                <form class="col-md-12 form-horizontal">
+                    <input type="hidden" id="hdEventID" value="0" />
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" id="txtSubject" class="form-control" disabled />
+                        @*<script>$("#txtSubject").val("Vacarion Request From")</script>*@
+                    </div>
+                    <div class="form-group">
+                        <h3>Available Days</h3>
+                        <label> Casual Days: </label> <input type="text" value="@Session["casual"].ToString()" disabled="disabled" style="width:36px; text-align:center;" />
+                        <label> Regular Days: </label> <input type="text" value="@Session["regular"].ToString()" disabled="disabled" style="width:36px;text-align:center" />
+
+                    </div>
+                    <div class="form-group">
+                        <label>Start</label>
+                        <div class="input-group date" id="dtp1">
+                            <input type="text" id="txtStart" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsFullDay" checked="checked" />  Is Full Day</label> &nbsp;&nbsp;
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsCasual" />  Casual Vacation </label>&nbsp;&nbsp;
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsRegular" />  Regular Vacation </label>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIspermission" /> Hours Permission </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="divEndDate">
+                        <label>End</label>
+                        <div class="input-group date" id="dtp2">
+                            <input type="text" id="txtEnd" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label> Days </label> <input type="text" id="days" disabled="disabled" style="width:36px; text-align:center;" />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="txtDescription" rows="3" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Theme Color</label>
+                        <select id="ddThemeColor" class="form-control">
+                            <option value="">Default</option>
+                            <option value="red">Red</option>
+                            <option value="blue">Blue</option>
+                            <option value="black">Black</option>
+                            <option value="green">Green</option>
+                        </select>
+                    </div>
+                    <button type="button" id="btnSave" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/CSS/fullCalendar.css" rel="stylesheet" />
+<link href="~/CSS/fullCalendar_print.css" rel="stylesheet" media="print" />
+<link href="~/CSS/dateTimePicker.css" rel="stylesheet" />
+<link href="~/CSS/sweet_alert.css" rel="stylesheet" />
+<link href="~/Content/Bootstrap.min.css" rel="stylesheet" />
+
+
+<script src="~/Scripts/jquery.min.js"></script>
+<script src="~/Scripts/bootstrap1.min.js"></script>
+<script src="~/Scripts/core.js"></script>
+<script src="~/Scripts/sweet_alert.js"></script>
+<script src="~/Scripts/jquery_flip.js"></script>
+<script src="~/Scripts/moment.min.js"></script>
+@*<script src="~/Scripts/fullCalender.js"></script>*@
+<script src="~/Scripts/fullcalendar.min.js"></script>
+<script src="~/Scripts/datePicker.js"></script>
+
+@section Scripts
+    {
+    @*<script src="~/Scripts/momentFull.js"></script>*@
+
+    @*<script src="~/Scripts/dateTimePicker.js"></script>*@
+
+    <script>
+        function FetchEventAndRenderCalendar() {
+            events = [];
+            $.ajax({
+                type: "GET",
+                url: "/fullCalender/GetEvents",
+                success: function (data) {
+                    $.each(data, function (i, v) {
+                        events.push({
+                            eventID: v.EventID,
+                            title: v.Subject,
+                            description: v.Description,
+                            start: moment(v.Start),
+                            end: v.End != null ? moment(v.End) : null,
+                            color: v.ThemeColor,
+                            allDay: v.IsFullDay,
+                            casual: v.isCasual,
+                            regular: v.isRegular,
+                            permission: v.isPermission,
+                            hours: v.hours,
+                            days: v.days
+
+                        });
+                    })
+
+                    GenerateCalender(events);
+                },
+                error: function (error) {
+                    //  alert('failed');
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: 'Error Ocurred while mapping Requests',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                }
+            })
+        }
+
+
+
+        $(document).ready(function () {
+            var events = [];
+            var selectedEvent = null;
+            FetchEventAndRenderCalendar();
+            function FetchEventAndRenderCalendar() {
+                events = [];
+                $.ajax({
+                    type: "GET",
+                    url: "/fullCalender/GetEvents",
+                    success: function (data) {
+                        $.each(data, function (i, v) {
+                            events.push({
+                                eventID: v.EventID,
+                                title: v.Subject,
+                                description: v.Description,
+                                start: moment(v.Start),
+                                end: v.End != null ? moment(v.End) : null,
+                                color: v.ThemeColor,
+                                allDay: v.IsFullDay,
+                                casual: v.isCasual,
+                                regular: v.isRegular,
+                                permission: v.isPermission,
+                                hours: v.hours,
+                                days: v.days
+
+                            });
+                        })
+
+                        GenerateCalender(events);
+                    },
+                    error: function (error) {
+                        //  alert('failed');
+                        swal({
+                            position: 'center',
+                            type: 'error',
+                            title: 'Error Ocurred while mapping Requests',
+                            showConfirmButton: false,
+                            timer: 2000
+                        })
+                    }
+                })
+            }
+            $('#btnSave').click(function () {
+                var startDate = moment($('#txtStart').val(), "DD/MM/YYYY ").toDate().toJSON();
+                var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY").toDate().toJSON();
+                $.ajax({
+
+                    type: "GET",
+                    url: "@Url.Action("checkInnerVacations", "fullCalender")?ssn=" + @Int32.Parse(Session["ssn"].ToString()) +"&start=" + startDate + "&end=" + endDate,
+                    success: function (data) {
+                        var check = JSON.parse(data);
+                        if (data == 0) {
+                            ValidateAndSubmit();
+                        }
+                        else {
+                            swal({
+                                position: 'center',
+                                type: 'error',
+                                title: 'You already requested a vacation in this period!!',
+                                showConfirmButton: false,
+                                timer: 3000
+                            })
+                            return;
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        //alert("error");
+                        swal({
+                            position: 'center',
+                            type: 'error',
+                            title: '"Some thing went wrong',
+                            showConfirmButton: false,
+                            timer: 2000
+                        })
+                    }
+
+                })
+            });
+            $('#btnEdit').click(function () {
+                //Open modal dialog for edit event
+                openAddEditForm();
+            })
+
+            $('#btnDelete').click(function () {
+                swal({
+                    title: 'Are you sure you want to delete it?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Confirm it!'
+                },
+                       function (result) {
+                           if (selectedEvent != null && result == true) {
+                               $.ajax({
+                                   type: "POST",
+                                   url: '/fullCalender/DeleteEvent',
+                                   data: { 'eventID': selectedEvent.eventID },
+                                   success: function (data) {
+                                       if (data.status) {
+                                           //Refresh the calender
+                                           FetchEventAndRenderCalendar();
+                                           $('#myModal').modal('hide');
+                                       }
+                                   },
+                                   error: function () {
+                                       //  alert('Failed');
+                                       swal({
+                                           position: 'center',
+                                           type: 'error',
+                                           title: 'Failed To delete!!',
+                                           showConfirmButton: false,
+                                           timer: 1500
+                                       })
+                                   }
+                               })
+                           }
+                       })
+            })
+
+            $('#dtp1,#dtp2').datetimepicker({
+                format: 'DD/MM/YYYY HH:mm A'
+
+            });
+
+            $("#dtp1").on("dp.change", function () {
+                var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+                days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                $("#days").val(days);
+
+            });
+            $("#dtp2").on("dp.change", function () {
+                var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                // days = daydiff(startDate, endDate);
+
+                if (startDate > endDate) {
+                    // alert('Invalid end date');
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: 'Invalid end date',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                    return;
+                }
+                else {
+                    var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+                    days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    $("#days").val(days);
+                }
+
+            });
+            function GenerateCalender(events) {
+                $('#calender').fullCalendar('destroy');
+                $('#calender').fullCalendar({
+                    contentHeight: 400,
+                    defaultDate: new Date(),
+                    timeFormat: 'h(:mm)a',
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,basicWeek,basicDay,agenda'
+                    },
+                    eventLimit: true,
+                    eventColor: '#378006',
+                    events: events,
+                    eventClick: function (calEvent, jsEvent, view) {
+                        selectedEvent = calEvent;
+                        $('#myModal #eventTitle').text(calEvent.title);
+                        var $description = $('<div/>');
+                        $description.append($('<p/>').html('<b>Start:</b>' + calEvent.start.format("DD-MMM-YYYY HH:mm a")));
+                        if (calEvent.end != null) {
+                            $description.append($('<p/>').html('<b>End:</b>' + calEvent.end.format("DD-MMM-YYYY HH:mm a")));
+                        }
+                        $description.append($('<p/>').html('<b>Description:</b>' + calEvent.description));
+                        $('#myModal #pDetails').empty().html($description);
+
+                        $('#myModal').modal();
+                    },
+                    selectable: true,
+                    select: function (start, end) {
+
+                        // days = daydiff(startDate, endDate);
+                        var timeDiff = Math.abs(start.toDate() - end.toDate());
+                        days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        selectedEvent = {
+                            eventID: 0,
+                            title: ' Request from @Session["name"].ToString()',
+                            description: '',
+                            start: start,
+                            end: end,
+                            allDay: false,
+                            color: '',
+                            casual: false,
+                            regular: false,
+                            permission: false,
+                            hours: 0,
+                            days: days
+                        };
+                        openAddEditForm();
+                        $('#calendar').fullCalendar('unselect');
+                    },
+                    editable: true,
+                    eventDrop: function (event) {
+                        var data = {
+                            EventID: event.eventID,
+                            Subject: event.title,
+                            Start: event.start.format('DD/MM/YYYY HH:mm A'),
+                            End: event.end != null ? event.end.format('DD/MM/YYYY HH:mm A') : null,
+                            Description: event.description,
+                            ThemeColor: event.color,
+                            IsFullDay: event.allDay,
+                            isCasual: event.casual,
+                            isRegular: event.regular,
+                            isPermission: event.permission,
+                            hours: event.hours,
+                            days: event.days
+                        };
+                        SaveEvent(data);
+                    }
+                })
+            }
+            $('#chkIsFullDay').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#divEndDate').hide();
+                }
+                else {
+                    $('#divEndDate').show();
+                }
+            });
+            $('#chkIsCasual').change(function () {
+                if ($(this).is(':checked')) {
+                    document.getElementById("chkIsRegular").disabled = true;
+                    document.getElementById("chkIspermission").disabled = true;
+                }
+                else {
+                    document.getElementById("chkIsRegular").disabled = false;
+                    document.getElementById("chkIspermission").disabled = false;
+
+                }
+            });
+            $('#chkIsRegular').change(function () {
+                if ($(this).is(':checked')) {
+                    document.getElementById("chkIsCasual").disabled = true;
+                    document.getElementById("chkIspermission").disabled = true;
+                }
+                else {
+                    document.getElementById("chkIsCasual").disabled = false;
+                    document.getElementById("chkIspermission").disabled = false;
+                }
+            });
+
+            $('#chkIspermission').change(function () {
+                if ($(this).is(':checked')) {
+                    document.getElementById("chkIsCasual").disabled = true;
+                    document.getElementById("chkIsRegular").disabled = true;
+                    //var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+                    //hours = Math.ceil(timeDiff / (1000 * 3600));
+
+
+                }
+                else {
+                    document.getElementById("chkIsCasual").disabled = false;
+                    document.getElementById("chkIsRegular").disabled = false;
+                }
+            });
+
+            function openAddEditForm() {
+                if (selectedEvent != null) {
+                    $('#hdEventID').val(selectedEvent.eventID);
+                    $('#txtSubject').val(selectedEvent.title);
+                    $('#txtStart').val(selectedEvent.start.format('DD/MM/YYYY HH:mm A'));
+                    $('#chkIsFullDay').prop("checked", selectedEvent.allDay || false);
+                    $('#chkIsFullDay').change();
+                    $('#txtEnd').val(selectedEvent.end != null ? selectedEvent.end.format('DD/MM/YYYY HH:mm A') : '');
+                    $('#txtDescription').val(selectedEvent.description);
+                    $('#ddThemeColor').val(selectedEvent.color);
+                    $('#chkIsCasual').prop("checked", selectedEvent.casual || false);
+                    $('#chkIsCasual').change();
+                    $('#chkIsRegular').prop("checked", selectedEvent.regular || false);
+                    $('#chkIsRegular').change();
+                    $('#chkIspermission').prop("checked", selectedEvent.permission || false);
+                    $('#chkIspermission').change();
+                    $('#days').val(selectedEvent.days);
+
+                }
+                $('#myModal').modal('hide');
+                $('#myModalSave').modal();
+            }
+        });
+
+        @*function saveFunction() {
+            var startDate = moment($('#txtStart').val(), "DD/MM/YYYY ").toDate().toJSON();
+            var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY").toDate().toJSON();
+            $.ajax({
+
+                type: "GET",
+                url: "@Url.Action("checkInnerVacations", "fullCalender")?ssn=" + @Int32.Parse(Session["ssn"].ToString()) +"&start=" + startDate + "&end=" + endDate,
+                success: function (data) {
+                    var check = JSON.parse(data);
+                    if (data == 0) {
+                        ValidateAndSubmit();
+                    }
+                    else {
+                        swal({
+                            position: 'center',
+                            type: 'error',
+                            title: 'You already requested a vacation in this period!!',
+                            showConfirmButton: false,
+                            timer: 3000
+                        })
+                        return;
+                    }
+                },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                //alert("error");
+                swal({
+                    position: 'center',
+                    type: 'error',
+                    title: '"Some thing went wrong',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            }
+
+        })
+        }*@
+        function ValidateAndSubmit() {
+            if ($('#txtSubject').val().trim() == "") {
+                // alert('Subject required');
+                swal({
+                    title: 'Subject required',
+                    text: "Please fill the subject field.",
+                    type: 'warning',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            if ($('#chkIsCasual').is(':checked') == false && $('#chkIsRegular').is(':checked') == false && $('#chkIspermission').is(':checked') == false) {
+                swal({
+                    title: 'Request type Requird',
+                    text: "Please check the type of your request",
+                    type: 'warning',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            if ($('#txtStart').val().trim() == "") {
+
+                swal({
+                    title: 'Start date required',
+                    text: "please fill the Start date field..",
+                    type: 'warning',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            if ($('#chkIsFullDay').is(':checked') == false && $('#txtEnd').val().trim() == "") {
+                //alert('End date required');
+                swal({
+                    title: 'End date required',
+                    text: "please fill the End date field..",
+                    type: 'warning',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            else {
+                var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                // days = daydiff(startDate, endDate);
+                var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+                days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                hours = Math.ceil(timeDiff / (1000 * 3600));
+
+                if (startDate > endDate) {
+                    // alert('Invalid end date');
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: 'Invalid end date',
+                        showConfirmButton: false,
+                        timer: 2000
+                    })
+                    return;
+                }
+
+            }
+            var data = {
+                EventID: $('#hdEventID').val(),
+                Subject: $('#txtSubject').val().trim(),
+                Start: $('#txtStart').val().trim(),
+                End: $('#chkIsFullDay').is(':checked') ? null : $('#txtEnd').val().trim(),
+                Description: $('#txtDescription').val(),
+                ThemeColor: $('#ddThemeColor').val(),
+                IsFullDay: $('#chkIsFullDay').is(':checked'),
+                isCasual: $('#chkIsCasual').is(':checked'),
+                isRegular: $('#chkIsRegular').is(':checked'),
+                isPermission: $('#chkIspermission').is(':checked'),
+                days: days,
+                hours: hours
+            }
+            if ($('#chkIspermission').is(':checked') == true && $('#chkIsRegular').is(':checked') == false && $('#chkIsCasual').is(':checked') == false) {
+                var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm A").toDate();
+                var endDate = moment($('#txtEnd').val(), "DD/MM/YYYY HH:mm A").toDate();
+                // days = daydiff(startDate, endDate);
+                var timeDiff = Math.abs(startDate.getTime() - endDate.getTime());
+                days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                hours = Math.ceil(timeDiff / (1000 * 3600));
+                if (days >= 1 && hours == 0) {
+                    swal({
+                        position: 'center',
+                        type: 'error',
+                        title: '"Can not request a Permission For Days!!" .',
+                        showConfirmButton: false,
+                        timer: 3000
+                    })
+                }
+                else {
+
+                    var pass;
+                    swal({
+                        title: 'Submit Your Password PLease',
+                        type: 'input',
+                        inputType: 'password',
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        confirmButtonColor: '#3085d6',
+                        showLoaderOnConfirm: true,
+                        inputPlaceholder: "Password*",
+                    },
+                    function (inputValue) {
+
+                        if (inputValue === false) return false;
+
+                        if (inputValue === "") {
+                            swal.showInputError("You need to write your Password!");
+                            return false
+                        }
+                        SaveEvent(data);
+                        pass = inputValue;
+                        $.ajax({
+                            type: "GET",
+                            url: "@Url.Action("sendMail", "requestOnClick")?ComingPassword=" + inputValue,
+                            success: function () {
+
+                                window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+
+                                swal({
+                                    position: 'center',
+                                    type: 'success',
+                                    title: '"Request sent to your head manager',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                }
+                                )
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                //alert("error");
+                                swal({
+                                    position: 'center',
+                                    type: 'error',
+                                    title: '"Some thing went wrong',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                        })
+
+                    })
+
+                }
+            }
+            if ($('#chkIsCasual').is(':checked') == true && $('#chkIsRegular').is(':checked') == false) {
+                if (days <= parseInt(@Session["casual"].ToString())) {
+
+                    //window.location.href = "@Url.Action("sendMail", "requestOnClick")";
+                    var pass;
+                    swal({
+                        title: 'Submit Your Password PLease',
+                        type: 'input',
+                        inputType: 'password',
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        confirmButtonColor: '#3085d6',
+                        showLoaderOnConfirm: true,
+                        inputPlaceholder: "Password*",
+                    },
+                    function (inputValue) {
+
+                        if (inputValue === false) return false;
+
+                        if (inputValue === "") {
+                            swal.showInputError("You need to write your Password!");
+                            return false
+                        }
+                        SaveEvent(data);
+                        pass = inputValue;
+                        $.ajax({
+                            type: "GET",
+                            url: "@Url.Action("sendMail", "requestOnClick")?ComingPassword=" + inputValue,
+                            success: function () {
+
+                                window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+
+                                swal({
+                                    position: 'center',
+                                    type: 'success',
+                                    title: '"Request sent to your head manager',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                }
+                                )
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                //alert("error");
+                                swal({
+                                    position: 'center',
+                                    type: 'error',
+                                    title: '"Some thing went wrong',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                        })
+
+                    })
+
+                }
+                else {
+                    // alert("You Requested " + days + " but you have " +@Session["casual"].ToString() +"Available Casual days!!");
+                    swal({
+                        title: 'Are you sure?',
+                        text: "You Requested " + days + " days but you have " +@Session["casual"].ToString() +" &nbsp Available Casual days, this may Affects your salary..",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, Confirm it!'
+                    },
+                    function (result) {
+                        if (result == true) {
+
+                            //window.location.href = "/requestOnClick/sendMail";
+                            var pass;
+                            swal({
+                                title: 'Submit Your Password PLease',
+                                type: 'input',
+                                inputType: 'password',
+                                showCancelButton: true,
+                                confirmButtonText: 'Submit',
+                                confirmButtonColor: '#3085d6',
+                                showLoaderOnConfirm: true,
+                                inputPlaceholder: "Password*",
+                            },
+                            function (inputValue) {
+
+                                if (inputValue === false) return false;
+
+                                if (inputValue === "") {
+                                    swal.showInputError("You need to write your Password!");
+                                    return false
+                                }
+                                SaveEvent(data);
+                                pass = inputValue;
+                                $.ajax({
+                                    type: "GET",
+                                    url: "@Url.Action("sendMail", "requestOnClick")?ComingPassword=" + inputValue,
+                                    success: function () {
+
+                                        window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+
+                                        swal({
+                                            position: 'center',
+                                            type: 'success',
+                                            title: '"Request sent to your head manager',
+                                            showConfirmButton: false,
+                                            timer: 3000
+                                        }
+                                        )
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        //alert("error");
+                                        swal({
+                                            position: 'center',
+                                            type: 'error',
+                                            title: '"Some thing went wrong',
+                                            showConfirmButton: false,
+                                            timer: 2000
+                                        })
+                                    }
+                                })
+
+                            })
+
+                        }
+                        else if (result == false) {
+                            swal(
+                              'Cancelled',
+                              'error'
+                            )
+
+                        }
+                    })
+
+                }
+            }
+            else if ($('#chkIsRegular').is(':checked') == true && $('#chkIsCasual').is(':checked') == false) {
+                if (days <= parseInt(@Session["regular"].ToString())) {
+
+                    //window.location.href = "@Url.Action("sendMail", "requestOnClick")";
+                    var pass;
+                    swal({
+                        title: 'Submit Your Password PLease',
+                        type: 'input',
+                        inputType: 'password',
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        confirmButtonColor: '#3085d6',
+                        showLoaderOnConfirm: true,
+                        inputPlaceholder: "Password*",
+                    },
+                    function (inputValue) {
+
+                        if (inputValue === false) return false;
+
+                        if (inputValue === "") {
+                            swal.showInputError("You need to write your Password!");
+                            return false
+                        }
+                        SaveEvent(data);
+                        pass = inputValue;
+                        $.ajax({
+                            type: "GET",
+                            url: "@Url.Action("sendMail", "requestOnClick")?ComingPassword=" + inputValue,
+                            success: function () {
+
+                                window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+
+                                swal({
+                                    position: 'center',
+                                    type: 'success',
+                                    title: '"Request sent to your head manager',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                }
+                                )
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                //alert("error");
+                                swal({
+                                    position: 'center',
+                                    type: 'error',
+                                    title: '"Some thing went wrong',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                        })
+
+                    })
+
+
+                }
+                else {
+                    swal({
+                        title: 'Are you sure?',
+                        text: "You Requested " + days + " days but you have " +@Session["regular"].ToString() +"Available Regular days, this may Affects your salary..",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, Confirm it!'
+                    },
+                        function (result) {
+
+                            if (result == true) {
+
+                                var pass;
+                                swal({
+                                    title: 'Submit Your Password PLease',
+                                    type: 'input',
+                                    inputType: 'password',
+                                    confirmButtonColor: '#3085d6',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Submit',
+                                    showLoaderOnConfirm: true,
+                                    inputPlaceholder: "Password*",
+                                },
+                                function (inputValue) {
+
+                                    if (inputValue === false) return false;
+
+                                    if (inputValue === "") {
+                                        swal.showInputError("You need to write your Password!");
+                                        return false
+                                    }
+                                    SaveEvent(data);
+                                    pass = inputValue;
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "@Url.Action("sendMail", "requestOnClick")?ComingPassword=" + inputValue,
+                                        success: function () {
+
+                                            window.location.href = "@Url.Action("UserDashBoard", "testLogin")";
+
+                                            swal({
+                                                position: 'center',
+                                                type: 'success',
+                                                title: '"Request sent to your head manager',
+                                                showConfirmButton: false,
+                                                timer: 3000
+                                            }
+                                            )
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                            //alert("error");
+                                            swal({
+                                                position: 'center',
+                                                type: 'error',
+                                                title: '"Some thing went wrong',
+                                                showConfirmButton: false,
+                                                timer: 2000
+                                            })
+                                        }
+                                    })
+
+                                })
+
+                            }
+                            else if (result == false) {
+                                swal(
+                                  'Cancelled',
+                                  'error'
+                                )
+                            }
+                        })
+                }
+            }
+
+        }
+
+
+        function SaveEvent(data) {
+            $.ajax({
+                type: "POST",
+                url: '/fullCalender/SaveEvent',
+                data: data,
+                success: function (data) {
+                    if (data.status) {
+                        //Refresh the calender
+                        FetchEventAndRenderCalendar();
+                        $('#myModalSave').modal('hide');
+                    }
+                },
+                error: function () {
+                    //alert('Failed');
+                    swal(
+                    'Oops...',
+                    'Something went wrong!',
+                    'error'
+                        )
+                }
+            })
+        }
+
+
+    </script>
+}

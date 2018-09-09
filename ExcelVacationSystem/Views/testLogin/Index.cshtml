@@ -1,0 +1,121 @@
+﻿@model ExcelVacationSystem.Models.Employee
+@{
+    ViewBag.Title = "Login Your Account";
+}
+
+<h2>Login Your Account</h2>
+@*<link href="~/Content/sweetalert/sweet-alert.css" rel="stylesheet" />
+    <script src="https://lipis.github.io/bootstrap-sweetalert/lib/sweet-alert.js"></script>*@
+
+<link rel="stylesheet" type="text/css" href="~/CSS/Login.css">
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script src="~/Scripts/jquery.flip.js"></script>
+<script src="~/Scripts/Login.js"></script>
+<script src="~/Scripts/flip.js"></script>
+
+
+<div class="login-screen"></div>
+
+<div class="col-xs-4 col-md-offset-8">
+    <div class="login" id="card">
+        <div class="front signin_form">
+            <p>Login Your Account</p>
+            <form class="login-form">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input id="mail" type="email" class="form-control" placeholder="Type your email">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"></i>
+                        </span>
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <div class="input-group">
+                            <input id="pass" type="password" class="form-control" placeholder="Type your password">
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-lock"></i>
+                            </span>
+                        </div>
+                    </div>*@
+                <div class="checkbox">
+                    <label><input type="checkbox">Remember me.</label>
+                </div>
+
+                <div class="form-group sign-btn">
+                    <input type="button" id="btn" class="btn" value="Log in" onclick="loginFunction()">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>*@
+<script src="~/Scripts/core.js"></script>
+@*<script src="http://tristanedwards.me/u/SweetAlert//lib/sweet-alert.js"></script>*@
+<script src="~/Scripts/sweet_alert.js"></script>
+@*<link rel="stylesheet" type="text/css" href="http://tristanedwards.me/u/SweetAlert//lib/sweet-alert.css">*@
+<link href="~/CSS/sweet_alert.css" rel="stylesheet" />
+<link href="~/Content/Bootstrap.min.css" rel="stylesheet" />
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Flip/1.0.18/jquery.flip.js"></script>*@
+<script src="~/Scripts/jquery_flip.js"></script>
+<script>
+    
+    $(document).ready(function () {
+        $("#mail").keydown(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                $("#btn").click();
+               // loginFunction();
+            }
+        });
+
+      
+    });
+    function loginFunction() {
+        debugger
+        var Mail = $('#mail').val();
+
+        $.ajax({
+            url: '/testLogin/log?mail=' + Mail,
+            contentType: 'application/json',
+            type: 'GET',
+
+            success: function (data) {
+                var obj = JSON.parse(data);
+
+                if (obj == -1) {
+                    // alert("invalid login");
+                    swal({
+                        title: "Invalid Login",
+                        text: "Wrong user ",
+                        type: "error",
+                        timer: 3000,
+                        showConfirmButton: false
+                    },
+                 function () {
+                   //  window.location.href = "/testLogin/Index";
+                 });
+
+                }
+                else {
+                    // alert("Success!..");
+                    window.location.href = "/testLogin/UserDashBoard";
+                }
+            },
+            error: function (data) {
+
+                //  alert("error");
+                swal(
+                    'Oops...',
+                    'Something went wrong!',
+                     'error'
+                     )
+                console.log(data);
+            }
+        })
+
+
+    }
+   
+
+
+</script>

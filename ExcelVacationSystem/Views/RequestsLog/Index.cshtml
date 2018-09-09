@@ -1,0 +1,252 @@
+﻿@model ExcelVacationSystem.Models.modelForGrid
+@{
+    ViewBag.Title = "Index";
+}
+@using Kendo.Mvc.UI
+
+
+@*<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>*@
+@*<script src="~/Scripts/kendo/kendo.all.min.js"></script>
+    <script src="~/Scripts/kendo/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/kendo/kendo.datepicker.min.js"></script>*@
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+@*<link href="~/Content/kendo/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/Content/kendo/kendo.default.min.css" rel="stylesheet" />*@
+
+@Styles.Render("~/Content/kendo/css")
+@*@Scripts.Render("~/bundles/jquery")*@
+@Scripts.Render("~/bundles/kendo")
+
+
+<h2>Requests</h2>
+
+
+@*@(Html.Kendo().Grid<ExcelVacationSystem.Models.request>()
+              .Name("grid")
+              .DataSource(dataSource => dataSource
+                  .Ajax()
+                  .Read(read => read.Action("RequestsLog", "requestslog"))
+               )
+              .Columns(columns =>
+              {
+                  columns.Bound(req => req.Employee.name);
+                  columns.Bound(req => req.date);
+                  columns.Bound(req => req.approval);
+                  columns.Bound(req => req.vacation.fromDate);
+                  columns.Bound(req => req.vacation.toDate);
+                  columns.Bound(req => req.vacation.num_days);
+                  columns.Bound(req => req.vacation.isPermission);
+                  columns.Bound(req => req.vacation.hours);
+
+              })
+              .Pageable()
+              .Sortable()
+    //)*@
+
+@*<div>
+
+            @Html.TextBoxFor(model => model.date, new { id = "t401Desc",  @class = "form-control animated bounceInRight", @style = "width:100%;text-align:center;background-color:lightcyan; font-family: monospace;Color:black;font-size: 16px;" })
+      <br />
+    </div>*@
+
+
+@(Html.Kendo().Grid<ExcelVacationSystem.Models.modelForGrid>()
+                .Name("RequestGrid")
+
+                    .Columns(columns =>
+                    {
+                    columns.Bound(req => req.name).Width(30).Title("Name ").Filterable(true);
+            columns.Bound(req => req.date).Title("Request Date").Width(30).Filterable(false).ClientTemplate("#= kendo.toString(kendo.parseDate(RequestDate), 'MM/dd/yyyy') #");
+            columns.Bound(req => req.approval).Title("Approval").Width(30).Filterable(false).ClientTemplate("#= checkAprroval(approval) #");
+            columns.Bound(req => req.fromDate).Title("From").Width(30).Filterable(false).ClientTemplate("#= kendo.toString(kendo.parseDate(from), 'MM/dd/yyyy') #");
+            columns.Bound(req => req.toDate).Title("To").Width(30).Filterable(false).ClientTemplate("#= kendo.toString(kendo.parseDate(to), 'MM/dd/yyyy') #");
+            columns.Bound(req => req.type).Title("Type").Width(30).Filterable(false).ClientTemplate("#= checkPermission(type) #");
+            columns.Bound(req => req.nDays).Title("Numper of Days").Width(30).Filterable(false).ClientTemplate("#= setDays(nDays) #");
+            columns.Bound(req => req.hours).Title("Number of hours").Width(30).Filterable(false).ClientTemplate("#= setPermistion(hours) #");
+
+
+        })
+
+       .Scrollable()
+       .Pageable(x => x.PageSizes(new List<object> { 10, 20, 100, 200, 500, "all" }).Refresh(true))
+       .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+        .Resizable(resize => resize.Columns(true))
+        .HtmlAttributes(new { style = "height: 100%" })
+        .Selectable()
+  .DataSource(dataSource => dataSource
+  .Ajax()
+  .ServerOperation(false)
+  .Read(read => read.Action("Requests_Read", "RequestsLog"))
+)
+
+)
+
+
+
+@*<table class="table table-striped" id="tbl">
+        <thead id="hd">
+            <tr>
+                <th>Employee SSN</th>
+                <th>Employee Name</th>
+                <th>Request Type</th>
+                <th>Request Date</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Number of Days Requested</th>
+                <th>Number OF Hours</th>
+                <th>Approval</th>
+
+            </tr>
+        </thead>
+        <tbody id="SetRequestList">
+            <tr id="LoadingStatus" style="color:red"></tr>
+        </tbody>
+
+    </table>*@
+
+
+<script>
+
+  function someFilterHere(element)
+    {
+      var dataSource = $('#RequestGrid').data('kendoGrid').dataSource;
+
+       element.element.removeAttr("data-bind");
+        element.element.prop('placeholder', 'some search text here');
+        element.element.kendoAutoComplete({
+             dataSource: dataSource ,
+            autoBind: true,
+            serverFiltering: false,
+            filter:"contains",
+            dataTextField:"Title"
+        }).data('kendoAutoComplete');
+    }
+
+    var grid;
+    var saleh = [];
+    $(document).ready(function () {
+        var grid = $("#RequestGrid").data("kendoGrid");
+        grid.bind("dataBound", function () {
+            for (var i = 0 ; i < grid._data.length; i++) {
+                //saleh.push(convertDate((grid._data[i])["RequestDate"]));
+                var date = convertDate((grid._data[i])["RequestDate"]);
+                (grid._data[i])["RequestDate"] = date;
+            }
+        });
+
+        var logOut = document.createElement("a");
+        logOut.setAttribute('href', "#");
+        logOut.innerHTML = "LOG OUT";
+        logOut.classList.add("nav");
+        logOut.classList.add("navbar-nav");
+        logOut.classList.add("navbar-right");
+        logOut.style.paddingLeft = "656px";
+        logOut.style.paddingTop = "16px";
+        logOut.addEventListener("click", function () {
+            window.location.href = "/testLogin/Index";
+        });
+        document.getElementById("nav").appendChild(logOut);
+
+        //grid = $("#RequestGrid").data("kendoGrid").dataSource;
+
+        //for (var i = 0 ; i < grid._data.length; i++) {
+        //    saleh.push(convertDate((grid.dataSource._data[i])["RequestDate"]));
+        //}
+    });
+    function getRequests() {
+
+    }
+    $("#LoadingStatus").html("Loading....");
+    $.ajax({
+        url: "/RequestsLog/RequestsLog",
+
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        processData: false,
+        success: function (eList) {
+            //var SetData = $("#SetRequestList");
+            //var SetData = $("#RequestGrid");
+
+            //for (var i = 0; i < eList.length; i++) {
+            //    var Data = "<tr class='row_" + i + "'>" +
+            //           "<td>" + eList[i].ssn + "</td>" +
+            //           "<td>" + eList[i].name + "</td>" +
+            //           "<td>" + checkPermission(eList[i].type) + "</td>" +
+            //           "<td>" +convertDate( eList[i].RequestDate) + "</td>" +
+            //           "<td>" + convertDate(eList[i].from) + "</td>" +
+            //           "<td>" + convertDate(eList[i].to) + "</td>" +
+            //           "<td>" + setDays(eList[i].nDays) + "</td>" +
+            //           "<td>" + eList[i].hours + "</td>" +
+            //          "<td>" + checkAprroval(eList[i].approval) + "</td>" +
+
+            //            "</tr>";
+            //    SetData.append(Data);
+            //    $("#LoadingStatus").html(" ");
+
+            //}
+
+
+            // $("#RequestGrid").data("kendoGrid").dataSource.data(eList);
+
+
+        }
+    });
+
+
+
+
+    function convertDate(date) {
+        var jsondateString = date.substr(6);
+        var current = new Date(parseInt(jsondateString));
+        var month = current.getMonth() + 1;
+        var day = current.getDate();
+        var year = current.getFullYear();
+        var date = day + "/" + month + "/" + year;
+        return date
+    }
+    function checkAprroval(approval) {
+        var approval = approval;
+        if (approval == 1)
+            return "Approved";
+        else if (approval == -1)
+            return "Declined";
+        else
+            return "Waiting";
+    }
+    temp = -1;
+    function checkPermission(type) {
+        if (type == true) {
+            temp = 0;
+            return "Permission";
+
+        }
+        else {
+            temp = 1;
+            return "Vacation";
+
+        }
+
+
+    }
+    function setDays(days) {
+        if (temp == 0) {
+            return "0";
+        }
+        else {
+            return days;
+        }
+    }
+    function setPermistion(hours) {
+        if (temp == 1)
+        { return "0"; }
+        else
+            return hours;
+    }
+
+
+
+</script>

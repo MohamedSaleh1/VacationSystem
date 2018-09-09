@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ExcelsystemsModelStoreContainer" CdmEntityContainer="ExcelsystemsEntities">
+    <EntitySetMapping Name="Departments">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.Department">
+        <MappingFragment StoreEntitySet="Department">
+          <ScalarProperty Name="dep_no" ColumnName="dep_no" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="mgrSsn" ColumnName="mgrSsn" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Employees">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.Employee">
+        <MappingFragment StoreEntitySet="Employee">
+          <ScalarProperty Name="isManager" ColumnName="isManager" />
+          <ScalarProperty Name="password" ColumnName="password" />
+          <ScalarProperty Name="emp_ssn" ColumnName="emp_ssn" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="mgr_ssn" ColumnName="mgr_ssn" />
+          <ScalarProperty Name="Dno" ColumnName="Dno" />
+          <ScalarProperty Name="available_vacationDays" ColumnName="available_vacationDays" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="sysdiagrams">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.sysdiagram">
+        <MappingFragment StoreEntitySet="sysdiagrams">
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+          <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+          <ScalarProperty Name="version" ColumnName="version" />
+          <ScalarProperty Name="definition" ColumnName="definition" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="vacations">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.vacation">
+        <MappingFragment StoreEntitySet="vacation">
+          <ScalarProperty Name="vac_ID" ColumnName="vac_ID" />
+          <ScalarProperty Name="num_days" ColumnName="num_days" />
+          <ScalarProperty Name="fromDate" ColumnName="fromDate" />
+          <ScalarProperty Name="toDate" ColumnName="toDate" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="requests">
+      <EntityTypeMapping TypeName="ExcelsystemsModel.request">
+        <MappingFragment StoreEntitySet="request">
+          <ScalarProperty Name="date" ColumnName="date" />
+          <ScalarProperty Name="vacID" ColumnName="vacID" />
+          <ScalarProperty Name="empID" ColumnName="empID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <FunctionImportMapping FunctionImportName="sp_alterdiagram" FunctionName="ExcelsystemsModel.Store.sp_alterdiagram" />
+    <FunctionImportMapping FunctionImportName="sp_creatediagram" FunctionName="ExcelsystemsModel.Store.sp_creatediagram" />
+    <FunctionImportMapping FunctionImportName="sp_dropdiagram" FunctionName="ExcelsystemsModel.Store.sp_dropdiagram" />
+    <FunctionImportMapping FunctionImportName="sp_helpdiagramdefinition" FunctionName="ExcelsystemsModel.Store.sp_helpdiagramdefinition">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="ExcelsystemsModel.sp_helpdiagramdefinition_Result">
+          <ScalarProperty Name="version" ColumnName="version" />
+          <ScalarProperty Name="definition" ColumnName="definition" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_helpdiagrams" FunctionName="ExcelsystemsModel.Store.sp_helpdiagrams">
+      <ResultMapping>
+        <ComplexTypeMapping TypeName="ExcelsystemsModel.sp_helpdiagrams_Result">
+          <ScalarProperty Name="Database" ColumnName="Database" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Owner" ColumnName="Owner" />
+          <ScalarProperty Name="OwnerID" ColumnName="OwnerID" />
+        </ComplexTypeMapping>
+      </ResultMapping>
+    </FunctionImportMapping>
+    <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="ExcelsystemsModel.Store.sp_renamediagram" />
+    <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="ExcelsystemsModel.Store.sp_upgraddiagrams" />
+  </EntityContainerMapping>
+</Mapping>
